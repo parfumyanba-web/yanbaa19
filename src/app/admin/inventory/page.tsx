@@ -8,7 +8,7 @@ export default async function InventoryPage() {
   const { data: inventory } = await supabase
     .from('inventory')
     .select('*, products(name, image_url)')
-    .order('stock_grams', { ascending: true })
+    .order('quantity_in_grams', { ascending: true })
 
   return (
     <div className="space-y-8 animate-fade-in">

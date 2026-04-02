@@ -6,9 +6,8 @@ import { updateStock, restock } from '@/actions/inventory'
 import { clsx } from 'clsx'
 
 interface InventoryItem {
-  id: number
   product_id: number
-  stock_grams: number
+  quantity_in_grams: number
   low_stock_threshold: number
   products: {
     name: string
@@ -20,14 +19,14 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
   const [inventory, setInventory] = useState(initialInventory)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const handleRestock = async (inventoryId: number, currentStock: number) => {
+  const handleRestock = async (productId: number, currentStock: number) => {
     const amount = prompt('Enter amount to add (grams):', '500')
     if (amount) {
       const grams = parseInt(amount)
-      const res = await restock(inventoryId, grams)
+      const res = await restock(productId, grams)
       if (res.success) {
         setInventory(prev => prev.map(item => 
-          item.id === inventoryId ? { ...item, stock_grams: item.stock_grams + grams } : item
+          item.product_id === productId ? { ...item, quantity_in_grams: item.quantity_in_grams + grams } : item
         ))
       }
     }
@@ -54,7 +53,7 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredInventory.map((item) => (
-          <div key={item.id} className="glass-card p-6 space-y-4 group transition-all hover:border-gold/30">
+          <div key={item.product_id} className="glass-card p-6 space-y-4 group transition-all hover:border-gold/30">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-lg bg-white/5 overflow-hidden border border-white/10">
@@ -69,7 +68,7 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
                   <p className="text-[10px] text-white/30 uppercase tracking-widest">ID: {item.product_id}</p>
                 </div>
               </div>
-              {item.stock_grams <= item.low_stock_threshold && (
+              {item.quantity_in_grams <= item.low_stock_threshold && (
                 <div className="p-2 text-amber-400 bg-amber-400/10 rounded-lg animate-pulse" title="Low Stock">
                   <AlertTriangle size={16} />
                 </div>
@@ -82,13 +81,13 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
                    <label className="text-[10px] uppercase tracking-widest text-white/40 block mb-1">Stock Level</label>
                    <span className={clsx(
                      "text-2xl font-bold",
-                     item.stock_grams <= item.low_stock_threshold ? "text-amber-400" : "text-white"
+                     item.quantity_in_grams <= item.low_stock_threshold ? "text-amber-400" : "text-white"
                    )}>
-                     {Number(item.stock_grams).toLocaleString()}g
+                     {Number(item.quantity_in_grams).toLocaleString()}g
                    </span>
                  </div>
                  <button 
-                  onClick={() => handleRestock(item.id, item.stock_grams)}
+                  onClick={() => handleRestock(item.product_id, item.quantity_in_grams)}
                   className="flex items-center gap-2 px-4 py-2 bg-gold text-black rounded-lg text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-gold/20"
                  >
                    <Plus size={14} /> Restock
@@ -99,9 +98,9 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
                   <div 
                     className={clsx(
                       "h-full transition-all duration-1000",
-                      item.stock_grams <= item.low_stock_threshold ? "bg-amber-400" : "bg-gold"
+                      item.quantity_in_grams <= item.low_stock_threshold ? "bg-amber-400" : "bg-gold"
                     )}
-                    style={{ width: `${Math.min((item.stock_grams / (item.low_stock_threshold * 3)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min((item.quantity_in_grams / (item.low_stock_threshold * 3)) * 100, 100)}%` }}
                   />
                </div>
             </div>
