@@ -140,15 +140,4 @@ const AdminProducts = async () => {
       </div>
     </div>
   )
-}
-
-import DeleteProductButton from '@/components/admin/DeleteProductButton'
-
-// ... (inside the table loop)
-                  <td className="px-8 py-5 text-right">
-                    <div className="flex justify-end gap-2">
-                       <Link href={`/admin/products/edit/${product.id}`} className="p-2 text-white/30 hover:text-gold hover:bg-white/5 rounded-lg transition-all"><Edit2 size={16} /></Link>
-                       <DeleteProductButton id={product.id} />
-                    </div>
-                  </td>
-// ...
+export default AdminProducts
