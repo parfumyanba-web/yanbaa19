@@ -6,6 +6,7 @@ import LuxuryButton from '@/components/ui/LuxuryButton'
 import { createClient } from '@/lib/supabase/server'
 import { deleteProduct, getProducts } from '@/actions/products'
 import Link from 'next/link'
+import DeleteProductButton from '@/components/admin/DeleteProductButton'
 
 const AdminProducts = async () => {
   const products = await getProducts()
@@ -140,4 +141,6 @@ const AdminProducts = async () => {
       </div>
     </div>
   )
+}
+
 export default AdminProducts
