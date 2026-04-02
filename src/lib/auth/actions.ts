@@ -4,12 +4,13 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function signIn(formData: FormData) {
-  const phone = formData.get('phone') as string
+  const identifier = formData.get('identifier') as string
   const password = formData.get('password') as string
   const supabase = await createClient()
 
-  // Internal mapping of phone to email-like format for Supabase Auth
-  const email = `${phone}@yanba.com`
+  // Detect if it's an email (admin) or phone (client)
+  const isEmail = identifier.includes('@')
+  const email = isEmail ? identifier : `${identifier}@yanba.com`
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -36,37 +37,23 @@ export async function signUp(formData: FormData) {
   const supabase = await createClient()
   const email = `${phone}@yanba.com`
 
-  const { data, error } = await supabase.auth.signUp({
+  // Sign up with Metadata - Trigger handles public.profiles insertion
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
         phone: phone,
+        store_name: storeName,
+        wilaya: wilaya,
+        commune: commune,
+        address: address,
       }
     }
   })
 
   if (error) return { error: error.message }
-
-  if (data.user) {
-    // Create profile in public.profiles
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: data.user.id,
-        full_name: fullName,
-        phone: phone,
-        store_name: storeName,
-        wilaya: wilaya,
-        commune: commune,
-        address: address,
-        role: 'client',
-        is_active: true
-      })
-
-    if (profileError) return { error: profileError.message }
-  }
 
   return { success: true }
 }

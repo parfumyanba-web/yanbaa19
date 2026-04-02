@@ -37,12 +37,12 @@ const LoginPage = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase tracking-widest text-white/50 ml-1">{t('phone')}</label>
+              <label className="text-[10px] uppercase tracking-widest text-white/50 ml-1">Phone or Email</label>
               <input
-                type="tel"
-                name="phone"
+                type="text"
+                name="identifier"
                 required
-                placeholder="05 / 06 / 07 ..."
+                placeholder="05 / 06 / 07 or admin@yanba.com"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-colors text-white text-sm"
               />
             </div>
