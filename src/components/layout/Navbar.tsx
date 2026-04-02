@@ -11,6 +11,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isAdminUser, setIsAdminUser] = useState(false)
   const { language, setLanguage, t } = useLanguage()
   const cartItems = useCartStore((state) => state.items)
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity_count, 0)
@@ -19,6 +20,19 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
+    
+    // Check if user is admin
+    const checkAdmin = async () => {
+       const { createClient } = await import('@/lib/supabase/client')
+       const supabase = createClient()
+       const { data: { user } } = await supabase.auth.getUser()
+       if (user) {
+         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+         setIsAdminUser(profile?.role === 'admin')
+       }
+    }
+
+    checkAdmin()
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -37,8 +51,12 @@ const Navbar = () => {
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-12 text-sm font-light tracking-widest uppercase text-white/70">
             <Link href="/store" className="hover:text-gold transition-colors">{t('store')}</Link>
-            <Link href="/about" className="hover:text-gold transition-colors">{t('about')}</Link>
-            <Link href="/contact" className="hover:text-gold transition-colors">{t('contact')}</Link>
+            {isAdminUser && (
+              <Link href="/admin" className="text-gold font-bold flex items-center gap-2 hover:scale-105 transition-transform">
+                <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
+                Admin Dashboard
+              </Link>
+            )}
           </div>
 
           {/* Actions */}
@@ -75,10 +93,14 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-black border-t border-white/10 p-6 flex flex-col gap-6 md:hidden animate-fade-in">
-            <Link href="/store" className="text-lg hover:text-gold transition-colors">Store</Link>
-            <Link href="/about" className="text-lg hover:text-gold transition-colors">Legacy</Link>
-            <Link href="/contact" className="text-lg hover:text-gold transition-colors">B2B Portal</Link>
+          <div className="absolute top-full left-0 right-0 bg-black border-t border-white/10 p-6 flex flex-col gap-6 md:hidden animate-fade-in shadow-2xl">
+            <Link href="/store" className="text-lg hover:text-gold transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Store</Link>
+            {isAdminUser && (
+              <Link href="/admin" className="text-lg text-gold font-bold flex items-center justify-between" onClick={() => setIsMobileMenuOpen(false)}>
+                Admin Dashboard
+                <div className="w-2 h-2 bg-gold rounded-full" />
+              </Link>
+            )}
           </div>
         )}
       </nav>

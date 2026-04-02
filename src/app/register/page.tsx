@@ -11,7 +11,14 @@ const RegisterPage = () => {
   }, null)
 
   return (
-    <main className="min-h-screen py-20 flex items-center justify-center bg-[#121212] p-6 lg:p-20">
+    <main className="min-h-screen py-20 flex flex-col items-center justify-center bg-[#121212] p-6 lg:p-20">
+      <Link 
+        href="/" 
+        className="fixed top-8 left-8 flex items-center gap-2 text-white/40 hover:text-gold transition-colors text-sm uppercase tracking-widest group"
+      >
+        <span className="transform group-hover:-translate-x-1 transition-transform">←</span>
+        Back to Home
+      </Link>
       <div className="w-full max-w-2xl space-y-8 animate-fade-in">
         <div className="text-center space-y-2">
           <Link href="/" className="text-4xl font-arabic gold-text-gradient block mb-8">ينبع</Link>

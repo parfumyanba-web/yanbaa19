@@ -7,6 +7,7 @@ const HeroCanvas = () => {
   const [images, setImages] = useState<HTMLImageElement[]>([])
   const [currentFrame, setCurrentFrame] = useState(0)
   const totalFrames = 240
+  const [firstImage, setFirstImage] = useState<HTMLImageElement | null>(null)
 
   // Preload images
   useEffect(() => {
@@ -18,6 +19,7 @@ const HeroCanvas = () => {
         const img = new Image()
         img.src = `/frames/ezgif-frame-${i.toString().padStart(3, '0')}.jpg`
         img.onload = () => {
+          if (i === 1) setFirstImage(img)
           loadedCount++
           if (loadedCount === totalFrames) {
             setImages(loadedImages)
@@ -48,18 +50,7 @@ const HeroCanvas = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Draw current frame
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || images.length === 0) return
-
-    const context = canvas.getContext('2d')
-    if (!context) return
-
-    const img = images[currentFrame]
-    if (!img) return
-
-    // Scale to cover
+  const drawFrame = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, img: HTMLImageElement) => {
     const canvasWidth = canvas.width
     const canvasHeight = canvas.height
     const imgWidth = img.width
@@ -71,7 +62,19 @@ const HeroCanvas = () => {
 
     context.clearRect(0, 0, canvasWidth, canvasHeight)
     context.drawImage(img, x, y, imgWidth * scale, imgHeight * scale)
-  }, [currentFrame, images])
+  }
+
+  // Draw current frame
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const img = images[currentFrame] || firstImage
+    if (!canvas || !img) return
+
+    const context = canvas.getContext('2d')
+    if (!context) return
+
+    drawFrame(canvas, context, img)
+  }, [currentFrame, images, firstImage])
 
   // Resize canvas
   useEffect(() => {
@@ -80,6 +83,12 @@ const HeroCanvas = () => {
       if (!canvas) return
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
+      // Re-draw immediately after resize
+      if (images.length > 0 || firstImage) {
+        const context = canvas.getContext('2d')
+        const img = images[currentFrame] || firstImage
+        if (context && img) drawFrame(canvas, context, img)
+      }
     }
 
     handleResize()

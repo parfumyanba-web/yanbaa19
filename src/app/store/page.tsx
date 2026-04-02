@@ -5,8 +5,10 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
 export default async function StorePage() {
-  const products = await getProducts()
-  const brands = await getBrands()
+  const [products, brands] = await Promise.all([
+    getProducts(),
+    getBrands()
+  ])
 
   return (
     <main className="min-h-screen pt-32 bg-[#121212]">

@@ -15,8 +15,6 @@ interface LanguageContextType {
 const translations: Record<Language, Record<string, string>> = {
   ar: {
     store: 'المتجر',
-    about: 'قصتنا',
-    contact: 'اتصل بنا',
     login: 'دخول',
     register: 'تسجيل',
     cart: 'السلة',
@@ -28,8 +26,6 @@ const translations: Record<Language, Record<string, string>> = {
   },
   fr: {
     store: 'Boutique',
-    about: 'Héritage',
-    contact: 'Contact',
     login: 'Connexion',
     register: 'Inscription',
     cart: 'Panier',
