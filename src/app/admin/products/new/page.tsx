@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function NewProductPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: brands } = await supabase.from('brands').select('*')
   const { data: categories } = await supabase.from('categories').select('*')
 

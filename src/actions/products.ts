@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function createProduct(formData: FormData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -57,7 +57,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(id: number, formData: FormData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -83,7 +83,7 @@ export async function updateProduct(id: number, formData: FormData) {
 }
 
 export async function deleteProduct(id: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.from('products').delete().eq('id', id)
 
   if (error) return { error: error.message }
@@ -93,7 +93,7 @@ export async function deleteProduct(id: number) {
 }
 
 export async function getProducts() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('products')
     .select('*, brands(name), product_categories(category_id, categories(name)), product_tags(tag)')
@@ -109,7 +109,7 @@ export async function getProducts() {
 
 // Category CRUD
 export async function createCategory(name: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase.from('categories').insert({ name }).select().single()
   if (error) return { error: error.message }
   revalidatePath('/admin/products')
@@ -118,7 +118,7 @@ export async function createCategory(name: string) {
 
 // Brand CRUD
 export async function createBrand(name: string, description?: string, image_url?: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase.from('brands').insert({ name, description, image_url }).select().single()
   if (error) return { error: error.message }
   revalidatePath('/admin/products')

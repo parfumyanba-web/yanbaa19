@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function freezeUser(userId: string, active: boolean) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase
     .from('profiles')
     .update({ is_active: active })
@@ -17,7 +17,7 @@ export async function freezeUser(userId: string, active: boolean) {
 }
 
 export async function deleteUser(userId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Note: deleting from auth.users requires service_role key or specific RPC
   // Since we are using createClient() from server.ts which uses anon key,
@@ -33,7 +33,7 @@ export async function deleteUser(userId: string) {
 }
 
 export async function resetPassword(userId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   // Trigger a password reset email
   const { data: userProfile } = await supabase.from('profiles').select('phone').eq('id', userId).single()
   
@@ -51,7 +51,7 @@ export async function resetPassword(userId: string) {
 }
 
 export async function getUsers() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('profiles')
     .select('*')

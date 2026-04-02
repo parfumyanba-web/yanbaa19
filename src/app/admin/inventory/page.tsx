@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { InventoryList } from '@/components/admin/inventory/InventoryList'
 
 export default async function InventoryPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const { data: inventory } = await supabase
     .from('inventory')

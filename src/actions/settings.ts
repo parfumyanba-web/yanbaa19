@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function updatePlatformSettings(key: string, value: any) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const { error } = await supabase
     .from('settings')
@@ -21,7 +21,7 @@ export async function updatePlatformSettings(key: string, value: any) {
 }
 
 export async function getSettings() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase.from('settings').select('*')
 
   if (error) {

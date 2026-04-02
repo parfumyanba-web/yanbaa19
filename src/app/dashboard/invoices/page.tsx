@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { InvoicesList } from '@/components/dashboard/invoices/InvoicesList'
 
 const ClientInvoices = async () => {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   const { data: orders } = await supabase

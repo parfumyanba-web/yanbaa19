@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { SettingsForm } from '@/components/admin/settings/SettingsForm'
 
 export default async function SettingsPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const { data: settings } = await supabase
     .from('settings')

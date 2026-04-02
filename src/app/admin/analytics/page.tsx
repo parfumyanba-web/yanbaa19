@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AnalyticsDashboard } from '@/components/admin/analytics/AnalyticsDashboard'
 
 export default async function AnalyticsPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Fetch data for analytics (simplified for demo)
   const { data: salesData } = await supabase

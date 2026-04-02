@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AdminOrdersList } from '@/components/admin/orders/AdminOrdersList'
 
 const AdminOrders = async () => {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: orders } = await supabase
     .from('orders')
     .select('*, profiles(full_name, store_name)')

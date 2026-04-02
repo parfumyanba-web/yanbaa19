@@ -21,7 +21,7 @@ export async function registerUser(formData: FormData) {
     return { error: 'Phone, password, and full name are required.' }
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const email = `${phone}@yanba.com`
 
   const { data, error } = await supabase.auth.signUp({
@@ -73,7 +73,7 @@ export async function loginUser(formData: FormData) {
     return { error: 'Phone and password are required.' }
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const email = `${phone}@yanba.com`
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -93,7 +93,7 @@ export async function loginUser(formData: FormData) {
  * Logs out the current user.
  */
 export async function logoutUser() {
-  const supabase = createClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
   redirect('/login')

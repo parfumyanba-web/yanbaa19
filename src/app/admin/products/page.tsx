@@ -10,7 +10,7 @@ import DeleteProductButton from '@/components/admin/DeleteProductButton'
 
 const AdminProducts = async () => {
   const products = await getProducts()
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: brands } = await supabase.from('brands').select('*')
   const { data: categories } = await supabase.from('categories').select('*')
 

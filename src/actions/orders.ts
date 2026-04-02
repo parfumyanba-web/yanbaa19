@@ -8,7 +8,7 @@ export async function createOrder(data: {
   items: { productId: number; quantityLabel: string; quantityGrams: number; price: number; count: number }[]
   totalPrice: number
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -40,7 +40,7 @@ export async function createOrder(data: {
 }
 
 export async function updateOrderStatus(id: string, status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled') {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.from('orders').update({ status }).eq('id', id)
 
   if (error) return { error: error.message }
@@ -50,7 +50,7 @@ export async function updateOrderStatus(id: string, status: 'pending' | 'confirm
 }
 
 export async function updatePayment(id: string, paidAmount: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.from('orders').update({ paid_amount: paidAmount }).eq('id', id)
 
   if (error) return { error: error.message }
@@ -60,7 +60,7 @@ export async function updatePayment(id: string, paidAmount: number) {
 }
 
 export async function getOrders() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('orders')
     .select('*, profiles(full_name, phone, store_name), order_items(*, products(name))')

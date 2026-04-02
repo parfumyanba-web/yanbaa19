@@ -3,7 +3,7 @@ import { TrendingUp, ShoppingCart, Users, DollarSign, ArrowUpRight, ArrowDownRig
 import { createClient } from '@/lib/supabase/server'
 
 const AdminOverview = async () => {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // 1. Fetch Revenue
   const { data: revenueData } = await supabase

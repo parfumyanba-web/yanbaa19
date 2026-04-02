@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 export async function signIn(formData: FormData) {
   const phone = formData.get('phone') as string
   const password = formData.get('password') as string
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Internal mapping of phone to email-like format for Supabase Auth
   const email = `${phone}@yanba.com`
@@ -33,7 +33,7 @@ export async function signUp(formData: FormData) {
   const commune = formData.get('commune') as string
   const address = formData.get('address') as string
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const email = `${phone}@yanba.com`
 
   const { data, error } = await supabase.auth.signUp({
@@ -72,7 +72,7 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = createClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/login')
 }

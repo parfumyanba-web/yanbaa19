@@ -11,7 +11,7 @@ export interface Product {
 }
 
 export async function getProducts(filters?: { categoryId?: number; brandId?: number }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   let query = supabase
     .from('products')
@@ -32,7 +32,7 @@ export async function getProducts(filters?: { categoryId?: number; brandId?: num
 }
 
 export async function getBrands() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data } = await supabase.from('brands').select('*')
   return data || []
 }

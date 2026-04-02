@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function updateStock(productId: number, quantityInGrams: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase
     .from('inventory')
     .update({ quantity_in_grams: quantityInGrams, last_updated: new Date().toISOString() })
@@ -18,7 +18,7 @@ export async function updateStock(productId: number, quantityInGrams: number) {
 }
 
 export async function restock(productId: number, addQuantityGrams: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Get current stock
   const { data: current, error: fetchError } = await supabase
@@ -43,7 +43,7 @@ export async function restock(productId: number, addQuantityGrams: number) {
 }
 
 export async function getInventory() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('inventory')
     .select('*, products(name, image_url, brands(name))')

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function generateInvoice(orderId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('invoices')
@@ -22,7 +22,7 @@ export async function generateInvoice(orderId: string) {
 }
 
 export async function getInvoices() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('invoices')
     .select('*, orders(*, profiles(full_name, store_name))')
