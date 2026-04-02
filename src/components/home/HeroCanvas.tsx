@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import { useLanguage } from '@/context/LanguageContext'
 
 const HeroCanvas = () => {
+  const { t } = useLanguage()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [images, setImages] = useState<HTMLImageElement[]>([])
   const [currentFrame, setCurrentFrame] = useState(0)
@@ -106,16 +108,16 @@ const HeroCanvas = () => {
         
         {/* Luxury Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-black/30 pointer-events-none">
-          <h1 className="text-5xl md:text-8xl font-arabic gold-text-gradient mb-4 animate-fade-in">
-            ينبع للعطور
+          <h1 className="text-5xl md:text-8xl font-arabic gold-text-gradient mb-4 animate-fade-in drop-shadow-2xl">
+            {t('hero_title')}
           </h1>
-          <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-light tracking-widest uppercase animate-slide-up">
-            Elite B2B Fragrance Experience
+          <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-light tracking-[0.3em] uppercase animate-slide-up">
+            {t('hero_subtitle')}
           </p>
           
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-50">
-            <span className="text-xs tracking-widest uppercase">Scroll to Explore</span>
-            <div className="w-px h-12 bg-gold" />
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce opacity-50">
+            <span className="text-[10px] tracking-[0.5em] uppercase font-bold text-gold">{t('scroll_explore')}</span>
+            <div className="w-px h-16 bg-gradient-to-b from-gold to-transparent" />
           </div>
         </div>
       </div>

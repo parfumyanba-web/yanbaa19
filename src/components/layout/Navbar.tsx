@@ -54,7 +54,7 @@ const Navbar = () => {
             {isAdminUser && (
               <Link href="/admin" className="text-gold font-bold flex items-center gap-2 hover:scale-105 transition-transform">
                 <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
-                Admin Dashboard
+                {t('admin_dashboard')}
               </Link>
             )}
           </div>
@@ -94,10 +94,12 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-black border-t border-white/10 p-6 flex flex-col gap-6 md:hidden animate-fade-in shadow-2xl">
-            <Link href="/store" className="text-lg hover:text-gold transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Store</Link>
+            <Link href="/store" className="text-lg hover:text-gold transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+              {t('store')}
+            </Link>
             {isAdminUser && (
               <Link href="/admin" className="text-lg text-gold font-bold flex items-center justify-between" onClick={() => setIsMobileMenuOpen(false)}>
-                Admin Dashboard
+                {t('admin_dashboard')}
                 <div className="w-2 h-2 bg-gold rounded-full" />
               </Link>
             )}

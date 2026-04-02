@@ -1,5 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 
+export interface Brand {
+  id: number
+  name: string
+  image_url?: string
+}
+
 export interface Product {
   id: number
   name: string
