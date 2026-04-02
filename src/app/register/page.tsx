@@ -1,9 +1,15 @@
-import React from 'react'
+'use client'
+
+import React, { useActionState } from 'react'
 import Link from 'next/link'
 import LuxuryButton from '@/components/ui/LuxuryButton'
 import { signUp } from '@/lib/auth/actions'
 
 const RegisterPage = () => {
+  const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
+    return await signUp(formData)
+  }, null)
+
   return (
     <main className="min-h-screen py-20 flex items-center justify-center bg-[#121212] p-6 lg:p-20">
       <div className="w-full max-w-2xl space-y-8 animate-fade-in">
@@ -13,7 +19,19 @@ const RegisterPage = () => {
           <p className="text-white/40 text-sm">Register your store for wholesale access</p>
         </div>
 
-        <form action={signUp} className="glass-card p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form action={formAction} className="glass-card p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {state?.error && (
+            <div className="md:col-span-2 bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm animate-shake">
+              {state.error}
+            </div>
+          )}
+
+          {state?.success && (
+            <div className="md:col-span-2 bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-xl text-sm">
+              Account request received! We will contact you soon. <Link href="/login" className="underline">Go to Login</Link>
+            </div>
+          )}
+
           <div className="space-y-6">
              <h3 className="text-gold text-xs font-bold uppercase tracking-widest">Personal Info</h3>
              <div className="space-y-4">
@@ -57,8 +75,8 @@ const RegisterPage = () => {
           </div>
 
           <div className="md:col-span-2 pt-6">
-            <LuxuryButton type="submit" className="w-full py-4 text-lg">
-              Create Partner Account
+            <LuxuryButton type="submit" className="w-full py-4 text-lg" disabled={isPending}>
+              {isPending ? 'Registering...' : 'Create Partner Account'}
             </LuxuryButton>
             <p className="text-center text-white/30 text-sm mt-6">
               Already have an account?{' '}

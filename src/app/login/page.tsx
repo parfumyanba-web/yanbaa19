@@ -1,9 +1,15 @@
-import React from 'react'
+'use client'
+
+import React, { useActionState } from 'react'
 import Link from 'next/link'
 import LuxuryButton from '@/components/ui/LuxuryButton'
 import { signIn } from '@/lib/auth/actions'
 
 const LoginPage = () => {
+  const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
+    return await signIn(formData)
+  }, null)
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#121212] p-6">
       <div className="w-full max-w-md space-y-8 animate-fade-in">
@@ -13,7 +19,13 @@ const LoginPage = () => {
           <p className="text-white/40 text-sm">B2B Partner Portal Login</p>
         </div>
 
-        <form action={signIn} className="glass-card p-8 space-y-6">
+        <form action={formAction} className="glass-card p-8 space-y-6">
+          {state?.error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm animate-shake">
+              {state.error}
+            </div>
+          )}
+
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-white/50 ml-1">Phone Number</label>
@@ -37,8 +49,8 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <LuxuryButton type="submit" className="w-full">
-            Sign In
+          <LuxuryButton type="submit" className="w-full" disabled={isPending}>
+            {isPending ? 'Signing In...' : 'Sign In'}
           </LuxuryButton>
 
           <div className="text-center pt-4">
