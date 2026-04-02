@@ -9,12 +9,22 @@ const ProductCard = ({ product }: { product: Product }) => {
   const { t } = useLanguage()
   const addItem = useCartStore((state) => state.addItem)
 
+  // Resolve image URL
+  const resolveImage = (url?: string) => {
+    if (!url) return '/placeholder-perfume.jpg'
+    if (url.startsWith('http') || url.startsWith('/')) return url
+    // If it's just a filename, assume it's in the Supabase 'products' bucket
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/products/${url}`
+  }
+
+  const imageUrl = resolveImage(product.image_url)
+
   const handleAddToCart = () => {
     addItem({
       id: product.id.toString(),
       name: product.name,
       price: product.price_dzd,
-      image: product.image_url || '/placeholder-perfume.jpg',
+      image: imageUrl,
       quantity_label: '100g', // Default
       quantity_count: 1
     })
@@ -24,7 +34,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     <div className="group glass-card overflow-hidden transition-all duration-700 hover:border-gold/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] rounded-3xl border border-white/5 bg-white/[0.02]">
       <div className="aspect-[3/4] relative bg-neutral-900 overflow-hidden">
         <Image
-          src={product.image_url || '/placeholder-perfume.jpg'}
+          src={imageUrl}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -37,6 +47,17 @@ const ProductCard = ({ product }: { product: Product }) => {
             <Plus size={20} /> {t('add_to_cart')}
           </button>
         </div>
+        
+        {/* Tags */}
+        {product.product_tags && product.product_tags.length > 0 && (
+          <div className="absolute top-4 right-4 flex flex-col gap-2 pointer-events-none">
+            {product.product_tags.map((pt, i) => (
+              <span key={i} className="bg-black/50 backdrop-blur-md border border-white/10 text-white/80 text-[10px] uppercase px-3 py-1 rounded-full font-arabic">
+                {pt.tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       
       <div className="p-8 space-y-4">

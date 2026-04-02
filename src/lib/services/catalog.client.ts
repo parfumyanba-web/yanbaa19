@@ -6,7 +6,7 @@ export async function getProductsClient(filters?: { categoryId?: number; brandId
   
   let query = supabase
     .from('products')
-    .select('*, brands(name)')
+    .select('*, brands(name), product_tags(tag)')
 
   if (filters?.brandId) {
     query = query.eq('brand_id', filters.brandId)

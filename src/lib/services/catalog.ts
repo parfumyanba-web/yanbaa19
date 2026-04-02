@@ -14,6 +14,7 @@ export interface Product {
   image_url: string
   brand_id?: number
   brands?: { name: string }
+  product_tags?: { tag: string }[]
 }
 
 export async function getProducts(filters?: { categoryId?: number; brandId?: number }) {
@@ -21,7 +22,7 @@ export async function getProducts(filters?: { categoryId?: number; brandId?: num
   
   let query = supabase
     .from('products')
-    .select('*, brands(name)')
+    .select('*, brands(name), product_tags(tag)')
 
   if (filters?.brandId) {
     query = query.eq('brand_id', filters.brandId)

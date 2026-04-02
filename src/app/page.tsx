@@ -4,17 +4,50 @@ import HeroCanvas from '@/components/home/HeroCanvas'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useLanguage } from '@/context/LanguageContext'
+import { useEffect, useState } from 'react'
+import { getProductsClient } from '@/lib/services/catalog.client'
+import { Product } from '@/lib/services/catalog'
+import ProductCard from '@/components/store/ProductCard'
 
 export default function Home() {
   const { t } = useLanguage()
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    async function loadFeatured() {
+      const p = await getProductsClient()
+      setFeaturedProducts(p.slice(0, 4)) // Show first 4
+    }
+    loadFeatured()
+  }, [])
   
   return (
     <main className="min-h-screen font-alexandria">
       <Navbar />
       <HeroCanvas />
       
-      {/* Quality Section */}
+      {/* Featured Products */}
       <section className="relative z-10 py-32 px-6 bg-[#121212]">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-6xl font-arabic gold-text-gradient">
+              {t('luxury_collection')}
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {featuredProducts.length > 0 ? (
+              featuredProducts.map((p) => <ProductCard key={p.id} product={p} />)
+            ) : (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="aspect-[3/4] glass-card animate-pulse bg-white/5 rounded-3xl" />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+      
+      {/* Quality Section */}
+      <section className="relative z-10 py-32 px-6 bg-black">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           <div className="space-y-8 animate-fade-in">
             <h2 className="text-4xl md:text-6xl font-arabic gold-text-gradient">
