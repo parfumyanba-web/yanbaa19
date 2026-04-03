@@ -1,28 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
+import { Product, Brand, ProductFilters } from '@/types/catalog'
 
-export interface Brand {
-  id: string
-  name: string
-  image_url?: string
-}
-
-export interface Product {
-  id: string
-  name: string
-  description: string
-  price_dzd: number
-  image_url: string
-  brand_id?: string
-  brands?: { name: string }
-  product_tags?: { tags: { name: string } }[]
-}
-
-export interface ProductFilters {
-  categoryId?: string
-  brandId?: string
-  tag?: string
-  limit?: number
-}
+export type { Product, Brand, ProductFilters }
 
 export async function getProducts(filters?: ProductFilters) {
   const supabase = await createClient()
@@ -39,14 +18,16 @@ export async function getProducts(filters?: ProductFilters) {
     query = query.limit(filters.limit)
   }
 
-  const { data, error } = await query
+  const { data, error } = query as any
   
-  if (error) {
-    console.error('Error fetching products:', error)
+  const { data: finalData, error: finalError } = await query
+  
+  if (finalError) {
+    console.error('Error fetching products:', finalError)
     return []
   }
 
-  let results = data as any[]
+  let results = finalData as any[]
   
   // Transform or filter by tag if needed
   if (filters?.tag) {

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Search, Eye, CheckCircle, Truck, Package, XCircle, DollarSign, FileText } from 'lucide-react'
 import { useRealtimeStore } from '@/store/useRealtimeStore'
-import { updateOrderStatus, updatePayment } from '@/actions/orders'
+import { updateOrderStatus, updateOrderPayment } from '@/actions/orders'
 import { generateInvoice } from '@/actions/invoices'
 import { clsx } from 'clsx'
 
@@ -48,7 +48,7 @@ export const AdminOrdersList = ({ initialOrders }: { initialOrders: Order[] }) =
     const amount = prompt('Enter paid amount:', total.toString())
     if (amount !== null) {
       const paid = parseFloat(amount)
-      const res = await updatePayment(id, paid)
+      const res = await updateOrderPayment(id, paid)
       if (res.success) {
         updateOrder({ id, paid_amount: paid })
       }

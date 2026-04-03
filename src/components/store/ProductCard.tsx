@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import { Plus, ShoppingBag } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
-import { Product } from '@/lib/services/catalog'
+import { Product } from '@/types/catalog'
 import { useLanguage } from '@/context/LanguageContext'
 
 const ProductCard = ({ product }: { product: Product }) => {
