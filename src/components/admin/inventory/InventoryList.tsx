@@ -6,7 +6,7 @@ import { updateStock, restock } from '@/actions/inventory'
 import { clsx } from 'clsx'
 
 interface InventoryItem {
-  product_id: number
+  product_id: string
   quantity_in_grams: number
   low_stock_threshold: number
   products: {
@@ -19,7 +19,7 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
   const [inventory, setInventory] = useState(initialInventory)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const handleRestock = async (productId: number, currentStock: number) => {
+  const handleRestock = async (productId: string, currentStock: number) => {
     const amount = prompt('Enter amount to add (grams):', '500')
     if (amount) {
       const grams = parseInt(amount)

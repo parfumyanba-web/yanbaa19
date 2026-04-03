@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function updateStock(productId: number, quantityInGrams: number) {
+export async function updateStock(productId: string, quantityInGrams: number) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('inventory')
@@ -17,7 +17,7 @@ export async function updateStock(productId: number, quantityInGrams: number) {
   return { success: true }
 }
 
-export async function restock(productId: number, addQuantityGrams: number) {
+export async function restock(productId: string, addQuantityGrams: number) {
   const supabase = await createClient()
   
   // Get current stock

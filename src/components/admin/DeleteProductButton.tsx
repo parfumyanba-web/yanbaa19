@@ -4,7 +4,7 @@ import React from 'react'
 import { Trash2 } from 'lucide-react'
 import { deleteProduct } from '@/actions/products'
 
-export default function DeleteProductButton({ id }: { id: number }) {
+export default function DeleteProductButton({ id }: { id: string }) {
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this product?')) {
       const result = await deleteProduct(id)
