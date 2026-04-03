@@ -3,7 +3,7 @@
 import React, { useActionState, useState } from 'react'
 import Link from 'next/link'
 import LuxuryButton from '@/components/ui/LuxuryButton'
-import { signIn } from '@/lib/auth/actions'
+import { adminSignIn } from '@/lib/auth/actions'
 import { useLanguage } from '@/context/LanguageContext'
 import { ShieldCheck, ArrowRight } from 'lucide-react'
 
@@ -11,7 +11,7 @@ const AdminLoginPage = () => {
   const { t, direction } = useLanguage()
   const [state, formAction, isPending] = useActionState(
     async (prevState: any, formData: FormData) => {
-      return await signIn(formData)
+      return await adminSignIn(formData)
     },
     null
   )

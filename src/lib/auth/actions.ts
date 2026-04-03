@@ -8,7 +8,6 @@ export async function signIn(formData: FormData) {
   const password = formData.get('password') as string
   const supabase = await createClient()
 
-  // Detect if it's an email (admin) or phone (client)
   const isEmail = identifier.includes('@')
   const email = isEmail ? identifier : `${identifier}@yanba.com`
 
@@ -17,12 +16,43 @@ export async function signIn(formData: FormData) {
     password,
   })
 
-  if (error) {
-    return { error: error.message }
-  }
+  if (error) return { error: error.message }
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')
+}
+
+export async function adminSignIn(formData: FormData) {
+  const identifier = formData.get('identifier') as string
+  const password = formData.get('password') as string
+  const supabase = await createClient()
+
+  // Admins MUST use email
+  if (!identifier.includes('@')) {
+    return { error: 'Admin access requires a valid email address.' }
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: identifier,
+    password,
+  })
+
+  if (error) return { error: error.message }
+
+  // Role Verification
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user.id)
+    .single()
+
+  if (profileError || profile?.role !== 'admin') {
+    await supabase.auth.signOut()
+    return { error: 'Unauthorized access. Administrators only.' }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/admin')
 }
 
 export async function signUp(formData: FormData) {

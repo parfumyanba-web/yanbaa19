@@ -26,12 +26,12 @@ BEGIN
   )
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'phone', ''),
-    COALESCE(NEW.raw_user_meta_data->>'store_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'address', ''),
-    COALESCE(NEW.raw_user_meta_data->>'wilaya', ''),
-    COALESCE(NEW.raw_user_meta_data->>'commune', ''),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'),
+    COALESCE(NEW.raw_user_meta_data->>'phone', '0000000000'),
+    COALESCE(NEW.raw_user_meta_data->>'store_name', 'Business Account'),
+    COALESCE(NEW.raw_user_meta_data->>'address', 'Pending Address'), -- Fallback for NOT NULL
+    COALESCE(NEW.raw_user_meta_data->>'wilaya', 'Algiers'), -- Fallback for NOT NULL
+    COALESCE(NEW.raw_user_meta_data->>'commune', 'Center'), -- Fallback for NOT NULL
     'client',
     TRUE -- Always ACTIVE immediately, bypassing any approval logic
   );
