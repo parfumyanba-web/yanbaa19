@@ -53,12 +53,14 @@ const AdminLoginPage = () => {
           <div className="space-y-6">
             <div>
               <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block font-bold">
-                {t('phone')} / Email
+                Email Address
               </label>
               <input 
                 name="identifier" 
+                type="email"
                 required 
                 placeholder="admin@yanba.com"
+                autoComplete="off"
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:border-gold/50 outline-none text-white text-sm transition-all focus:bg-white/[0.08]" 
               />
             </div>

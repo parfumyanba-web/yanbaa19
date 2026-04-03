@@ -11,6 +11,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isAuthUser, setIsAuthUser] = useState(false)
   const [isAdminUser, setIsAdminUser] = useState(false)
   const { language, setLanguage, t } = useLanguage()
   const cartItems = useCartStore((state) => state.items)
@@ -21,18 +22,19 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 50)
     }
     
-    // Check if user is admin
-    const checkAdmin = async () => {
+    // Check if user is authenticated and if admin
+    const checkUserStatus = async () => {
        const { createClient } = await import('@/lib/supabase/client')
        const supabase = createClient()
        const { data: { user } } = await supabase.auth.getUser()
        if (user) {
+         setIsAuthUser(true)
          const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
          setIsAdminUser(profile?.role === 'admin')
        }
     }
 
-    checkAdmin()
+    checkUserStatus()
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -83,8 +85,8 @@ const Navbar = () => {
             
             <div className="h-6 w-px bg-white/10 mx-2" />
 
-            <Link href="/login" className="text-white/40 hover:text-gold transition-all p-3.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5">
-              <User size={22} strokeWidth={1.5} />
+            <Link href={isAuthUser ? "/dashboard" : "/login"} className="text-white/40 hover:text-gold transition-all p-3.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5">
+              <User size={22} strokeWidth={1.5} className={isAuthUser ? "text-gold" : ""} />
             </Link>
             
             <button 
@@ -113,6 +115,10 @@ const Navbar = () => {
           <div className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-2xl border-t border-white/10 p-8 flex flex-col gap-8 md:hidden animate-fade-in shadow-2xl">
             <Link href="/store" className="text-2xl font-arabic hover:text-gold transition-colors flex justify-between items-center" onClick={() => setIsMobileMenuOpen(false)}>
               {t('store')}
+              <ArrowRight size={20} className="opacity-20 translate-x-4 group-hover:translate-x-0 transition-transform" />
+            </Link>
+            <Link href={isAuthUser ? "/dashboard" : "/login"} className="text-2xl font-arabic hover:text-gold transition-colors flex justify-between items-center" onClick={() => setIsMobileMenuOpen(false)}>
+              {isAuthUser ? "Dashboard" : "Login"}
               <ArrowRight size={20} className="opacity-20 translate-x-4 group-hover:translate-x-0 transition-transform" />
             </Link>
             {isAdminUser && (

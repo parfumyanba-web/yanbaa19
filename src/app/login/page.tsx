@@ -42,6 +42,7 @@ const LoginPage = () => {
                 type="text"
                 name="identifier"
                 required
+                autoComplete="off"
                 placeholder="05 / 06 / 07 or admin@yanba.com"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-colors text-white text-sm"
               />

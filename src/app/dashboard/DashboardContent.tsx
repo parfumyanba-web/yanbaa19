@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ShoppingBag, ChevronRight, Package, Loader2, ArrowRight } from 'lucide-react'
+import { ShoppingBag, ChevronRight, Package, Loader2, ArrowRight, CheckCircle2, Settings } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import Link from 'next/link'
 import InvoiceView from '@/components/invoice/InvoiceView'
@@ -86,7 +86,12 @@ export const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, r
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
         <div className="flex-1">
            <h1 className="text-3xl font-bold font-arabic gold-text-gradient">{t('welcome_back')}, {profile?.full_name}</h1>
-           <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mt-1 opacity-50">{t('partner_portal_overview')}</p>
+           <div className="flex items-center gap-4 mt-2">
+             <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] opacity-50">{t('partner_portal_overview')}</p>
+             <Link href="/dashboard/settings" title="Settings" className="p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-gold/10 hover:text-gold transition-colors text-white/40 hover:border-gold/20">
+               <Settings size={14} />
+             </Link>
+           </div>
         </div>
         
         <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
@@ -113,7 +118,7 @@ export const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, r
         <StatCard 
           label={t('refill_status')} 
           value={activeOrdersCount && activeOrdersCount > 0 ? t('in_process') : t('available')} 
-          icon={<Loader2 size={20} className={activeOrdersCount && activeOrdersCount > 0 ? "animate-spin" : ""} />} 
+          icon={activeOrdersCount && activeOrdersCount > 0 ? <Loader2 size={20} className="animate-spin text-gold" /> : <CheckCircle2 size={20} className="text-gold" />} 
           highlight
         />
       </div>
