@@ -59,6 +59,17 @@ const translations: Record<Language, Record<string, string>> = {
     scroll_explore: 'مرر للأسفل لاكتشاف المزيد',
     new_arrivals: 'وصل حديثاً',
     
+    // Checkout
+    checkout_title: 'إتمام الطلب',
+    review_cart: 'مراجعة السلة',
+    shipping_details: 'معلومات الشحن',
+    order_summary: 'ملخص الطلب',
+    place_order: 'تأكيد الطلب',
+    order_success: 'تم إرسال طلبك بنجاح!',
+    order_success_desc: 'سنتواصل معك قريباً لتأكيد الشحن.',
+    back_to_dashboard: 'العودة للوحة التحكم',
+    empty_checkout: 'سلتك فارغة، لا يمكنك إتمام الطلب.',
+    
     // Footer & General
     rights: 'جميع الحقوق محفوظة - ينبع للعطور',
     location: 'الجزائر العاصمة، الجزائر',
@@ -92,6 +103,13 @@ const translations: Record<Language, Record<string, string>> = {
     revenue: 'الأرباح',
     active_partners: 'الشركاء النشطون',
     total_inventory: 'إجمالي المخزون',
+    enter_paid_amount: 'أدخل المبلغ المدفوع:',
+    partner_portal_overview: 'نظرة عامة على بوابة الشركاء',
+    refill_status: 'حالة التوريد',
+    active_orders: 'الطلبات النشطة',
+    total_purchases: 'إجمالي المشتريات',
+    in_process: 'قيد المعالجة',
+    available: 'متاح',
   },
   fr: {
     // Navbar
@@ -172,6 +190,24 @@ const translations: Record<Language, Record<string, string>> = {
     revenue: 'Revenus',
     active_partners: 'Partenaires Actifs',
     total_inventory: 'Stock Total',
+    enter_paid_amount: 'Entrez le montant payé :',
+    partner_portal_overview: 'Aperçu du Portail Partenaire',
+    refill_status: 'État de l\'Approvisionnement',
+    active_orders: 'Commandes Actives',
+    total_purchases: 'Total des Achats',
+    in_process: 'En cours',
+    available: 'Disponible',
+
+    // Checkout
+    checkout_title: 'Caisse',
+    review_cart: 'Vérifier mon panier',
+    shipping_details: 'Détails de livraison',
+    order_summary: 'Résumé de commande',
+    place_order: 'Confirmer la commande',
+    order_success: 'Commande envoyée avec succès !',
+    order_success_desc: 'Nous vous contacterons bientôt pour confirmer l\'expédition.',
+    back_to_dashboard: 'Retour au tableau de bord',
+    empty_checkout: 'Votre panier est vide, impossible de commander.',
   }
 }
 

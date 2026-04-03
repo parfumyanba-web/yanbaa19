@@ -5,6 +5,7 @@ import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { useLanguage } from '@/context/LanguageContext'
 import LuxuryButton from '@/components/ui/LuxuryButton'
+import { useRouter } from 'next/navigation'
 
 interface CartDrawerProps {
   isOpen: boolean
@@ -14,6 +15,7 @@ interface CartDrawerProps {
 const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
   const { items, removeItem, updateQuantity } = useCartStore()
   const { t, direction } = useLanguage()
+  const router = useRouter()
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity_count), 0)
 
@@ -117,6 +119,10 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
             </div>
             
             <LuxuryButton 
+              onClick={() => {
+                onClose()
+                router.push('/checkout')
+              }}
               className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 group text-sm font-bold tracking-[0.2em]"
             >
               {t('checkout')}

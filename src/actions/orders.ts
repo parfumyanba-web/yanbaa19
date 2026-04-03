@@ -2,74 +2,96 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { CartItem } from '@/store/useCartStore'
 
-export async function createOrder(data: {
-  userId: string
-  items: { productId: number; quantityLabel: string; quantityGrams: number; price: number; count: number }[]
-  totalPrice: number
+export async function createOrder(items: CartItem[], shippingInfo: {
+  name: string
+  phone: string
+  wilaya: string
+  commune: string
+  address: string
 }) {
   const supabase = await createClient()
 
-  const { data: order, error: orderError } = await supabase
-    .from('orders')
-    .insert({
-      user_id: data.userId,
-      total_price: data.totalPrice,
-      status: 'pending'
-    })
-    .select()
-    .single()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  if (items.length === 0) return { error: 'Cart is empty' }
+
+  // 1. Calculate Total
+  const total_price = items.reduce((sum, item) => sum + (item.price * item.quantity_count), 0)
+
+  // 2. Create Order
+  const { data: order, error: orderError } = await supabase.from('orders').insert({
+    user_id: user.id,
+    total_price,
+    paid_amount: 0,
+    status: 'pending',
+    shipping_name: shippingInfo.name,
+    shipping_phone: shippingInfo.phone,
+    shipping_wilaya: shippingInfo.wilaya,
+    shipping_commune: shippingInfo.commune,
+    shipping_address: shippingInfo.address
+  }).select().single()
 
   if (orderError) return { error: orderError.message }
 
-  const orderItems = data.items.map(item => ({
+  // 3. Create Order Items
+  const orderItems = items.map(item => ({
     order_id: order.id,
-    product_id: item.productId,
-    quantity_label: item.quantityLabel,
-    quantity_grams: item.quantityGrams,
-    price_at_time: item.price,
-    quantity_count: item.count
+    product_id: item.id,
+    quantity_label: item.quantity_label,
+    quantity_count: item.quantity_count,
+    quantity_grams: parseGrams(item.quantity_label),
+    price_at_time: item.price
   }))
 
   const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
   if (itemsError) return { error: itemsError.message }
 
-  revalidatePath('/admin/orders')
+  // 4. Clear Cart in DB
+  await supabase.from('cart_items').delete().eq('user_id', user.id)
+
   revalidatePath('/dashboard')
+  revalidatePath('/admin')
+  
   return { success: true, orderId: order.id }
 }
 
-export async function updateOrderStatus(id: string, status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled') {
+export async function updateOrderStatus(orderId: string, status: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('orders').update({ status }).eq('id', id)
-
-  if (error) return { error: error.message }
-
-  revalidatePath('/admin/orders')
-  return { success: true }
-}
-
-export async function updatePayment(id: string, paidAmount: number) {
-  const supabase = await createClient()
-  const { error } = await supabase.from('orders').update({ paid_amount: paidAmount }).eq('id', id)
-
-  if (error) return { error: error.message }
-
-  revalidatePath('/admin/orders')
-  return { success: true }
-}
-
-export async function getOrders() {
-  const supabase = await createClient()
-  const { data, error } = await supabase
+  
+  const { error } = await supabase
     .from('orders')
-    .select('*, profiles(full_name, phone, store_name), order_items(*, products(name))')
-    .order('created_at', { ascending: false })
+    .update({ status })
+    .eq('id', orderId)
 
-  if (error) {
-    console.error('Error fetching orders:', error)
-    return []
-  }
+  if (error) return { error: error.message }
+  
+  revalidatePath('/admin')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
 
-  return data
+export async function updateOrderPayment(orderId: string, paidAmount: number) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('orders')
+    .update({ paid_amount: paidAmount })
+    .eq('id', orderId)
+
+  if (error) return { error: error.message }
+  
+  revalidatePath('/admin')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+function parseGrams(label: string): number {
+  if (label === '100g') return 100
+  if (label === '500g') return 500
+  if (label === '1kg') return 1000
+  if (label === '10kg') return 10000
+  return 0
 }
