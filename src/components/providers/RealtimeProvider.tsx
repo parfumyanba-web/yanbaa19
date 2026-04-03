@@ -70,10 +70,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             updateProfile(payload.new)
             if (payload.new.id === user.id) {
               setUserProfile(payload.new)
-              if (payload.new.is_active === false) {
-                showToast('Account Locked', 'Your account has been deactivated.', 'error')
-                supabase.auth.signOut().then(() => router.push('/login'))
-              }
+              // Logic for account locking removed as per requirements
             }
             router.refresh()
           }

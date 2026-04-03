@@ -34,7 +34,7 @@ const RegisterPage = () => {
         <div className="text-center space-y-2">
           <Link href="/" className="text-4xl font-arabic gold-text-gradient block mb-8">ينبع</Link>
           <h2 className="text-2xl font-bold tracking-tight text-white/90">{t('create_account')}</h2>
-          <p className="text-white/40 text-sm tracking-widest uppercase">{t('request_access')}</p>
+          <p className="text-gold/50 text-[10px] uppercase tracking-[0.3em] font-black">{t('join_yanba')}</p>
         </div>
 
         <form action={formAction} className="glass-card p-10 grid grid-cols-1 md:grid-cols-2 gap-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
