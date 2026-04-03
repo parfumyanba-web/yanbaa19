@@ -56,20 +56,15 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 1. Handle Admin Route Protection
+  // 1. Handle Admin Route Protection (uses JWT metadata, NOT profiles query)
   if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin-login')) {
       if (!user) {
         return NextResponse.redirect(new URL('/admin-login', request.url))
       }
 
-      // Check role
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (profile?.role !== 'admin') {
+      // Check role from JWT metadata (no DB query = no RLS recursion)
+      const isAdmin = user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin'
+      if (!isAdmin) {
         return NextResponse.redirect(new URL('/', request.url))
       }
     }

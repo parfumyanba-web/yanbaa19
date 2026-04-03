@@ -39,14 +39,10 @@ export async function adminSignIn(formData: FormData) {
 
   if (error) return { error: error.message }
 
-  // Role Verification
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', data.user.id)
-    .single()
+  // Role Verification from JWT metadata (NOT profiles table - avoids RLS recursion)
+  const isAdmin = data.user.app_metadata?.role === 'admin' || data.user.user_metadata?.role === 'admin'
 
-  if (profileError || profile?.role !== 'admin') {
+  if (!isAdmin) {
     await supabase.auth.signOut()
     return { error: 'Unauthorized access. Administrators only.' }
   }

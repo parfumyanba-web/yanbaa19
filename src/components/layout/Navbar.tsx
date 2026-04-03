@@ -29,8 +29,9 @@ const Navbar = () => {
        const { data: { user } } = await supabase.auth.getUser()
        if (user) {
          setIsAuthUser(true)
-         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-         setIsAdminUser(profile?.role === 'admin')
+         // Check admin from JWT metadata (no DB query = fast + no RLS issues)
+         const isAdmin = user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin'
+         setIsAdminUser(isAdmin)
        }
     }
 
