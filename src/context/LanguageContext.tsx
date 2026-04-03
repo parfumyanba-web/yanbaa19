@@ -31,7 +31,7 @@ const translations: Record<Language, Record<string, string>> = {
     sign_in: 'دخول',
     create_account: 'فتح حساب جديد',
     already_have_account: 'لديك حساب بالفعل؟',
-    request_access: 'طلب الانضمام لشبكتنا',
+    request_access: 'انضم إلينا الآن',
     personal_info: 'المعلومات الشخصية',
     business_info: 'معلومات النشاط التجاري',
     full_name: 'الاسم الكامل',
@@ -40,7 +40,7 @@ const translations: Record<Language, Record<string, string>> = {
     commune: 'البلدية',
     address: 'العنوان بالتفصيل',
     password_mismatch: 'كلمات المرور غير متطابقة',
-    success_request: 'تم استلام طلبك بنجاح! سنتواصل معك قريباً.',
+    success_request: 'تم إنشاء حسابك بنجاح! جاري تحويلك...',
     
     // Store
     luxury_collection: 'تشكيلتنا الفاخرة',
@@ -144,7 +144,7 @@ const translations: Record<Language, Record<string, string>> = {
     sign_in: 'Se connecter',
     create_account: 'Créer un compte',
     already_have_account: 'Déjà inscrit ?',
-    request_access: 'Demander l\'accès grossiste',
+    request_access: 'Rejoignez-nous maintenant',
     personal_info: 'Informations Personnelles',
     business_info: 'Informations Commerciales',
     full_name: 'Nom complet',
@@ -153,7 +153,7 @@ const translations: Record<Language, Record<string, string>> = {
     commune: 'Commune',
     address: 'Adresse complète',
     password_mismatch: 'Les mots de passe ne correspondent pas',
-    success_request: 'Demande reçue avec succès ! Nous vous contacterons bientôt.',
+    success_request: 'Compte créé avec succès ! Redirection...',
     
     // Store
     luxury_collection: 'Collection Prestige',

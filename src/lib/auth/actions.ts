@@ -37,8 +37,8 @@ export async function signUp(formData: FormData) {
   const supabase = await createClient()
   const email = `${phone}@yanba.com`
 
-  // Sign up with Metadata - Trigger handles public.profiles insertion
-  const { error } = await supabase.auth.signUp({
+  // 1. Sign up with Metadata
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -55,7 +55,19 @@ export async function signUp(formData: FormData) {
 
   if (error) return { error: error.message }
 
-  return { success: true }
+  // 2. Automatically sign in after sign up to remove "waiting for approval" barrier
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  if (signInError) {
+    // If auto-signin fails for some reason, we still count sign up as success but don't redirect yet
+    return { success: true, message: 'Account created, please log in.' }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/dashboard')
 }
 
 export async function signOut() {

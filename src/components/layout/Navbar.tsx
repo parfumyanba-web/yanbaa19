@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, User, Menu, X, Languages } from 'lucide-react'
+import { ShoppingBag, User, Menu, X, Languages, ArrowRight } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import CartDrawer from '@/components/cart/CartDrawer'
 import { useLanguage } from '@/context/LanguageContext'
@@ -56,9 +56,9 @@ const Navbar = () => {
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-gold transition-all group-hover:w-full" />
               </Link>
               {isAdminUser && (
-                <Link href="/admin" className="text-gold font-bold flex items-center gap-3 px-5 py-2.5 border border-gold/10 rounded-full bg-gold/5 hover:bg-gold hover:text-black transition-all duration-500 group">
-                  <div className="w-1.5 h-1.5 bg-gold rounded-full group-hover:bg-black animate-pulse" />
-                  {t('admin_dashboard')}
+                <Link href="/admin" className="text-gold font-bold flex items-center gap-3 px-6 py-3 border border-gold/20 rounded-2xl bg-gold/5 hover:bg-gold hover:text-black transition-all duration-500 group shadow-[0_0_20px_rgba(212,175,55,0.1)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+                  <div className="w-2 h-2 bg-gold rounded-full group-hover:bg-black animate-pulse" />
+                  <span className="tracking-[0.2em]">{t('admin_dashboard')}</span>
                 </Link>
               )}
             </div>
@@ -68,7 +68,7 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setLanguage(language === 'ar' ? 'fr' : 'ar')}
-              className="text-white/40 hover:text-gold transition-all px-4 py-2 border border-white/5 rounded-xl hover:bg-white/5 flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.2em]"
+              className="text-white/40 hover:text-gold transition-all px-4 py-2.5 border border-white/5 rounded-xl hover:bg-white/5 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em]"
             >
               <Languages size={14} className="opacity-50" />
               {language === 'ar' ? 'FRANÇAIS' : 'عربي'}
@@ -76,15 +76,15 @@ const Navbar = () => {
             
             <div className="h-6 w-px bg-white/10 mx-2" />
 
-            <Link href="/login" className="text-white/40 hover:text-gold transition-all p-3 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5">
-              <User size={20} />
+            <Link href="/login" className="text-white/40 hover:text-gold transition-all p-3.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5">
+              <User size={22} strokeWidth={1.5} />
             </Link>
             
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="relative text-white/40 hover:text-gold transition-all p-3 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5 group"
+              className="relative text-white/40 hover:text-gold transition-all p-3.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5 group"
             >
-              <ShoppingBag size={20} />
+              <ShoppingBag size={22} strokeWidth={1.5} />
               {totalItems > 0 && (
                 <span className="absolute top-1 right-1 bg-gold text-black text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform">
                   {totalItems}
@@ -93,7 +93,7 @@ const Navbar = () => {
             </button>
 
             <button 
-              className="md:hidden text-white/40 p-3 hover:bg-white/5 rounded-xl border border-white/5 ml-2"
+              className="md:hidden text-white/40 p-3.5 hover:bg-white/5 rounded-xl border border-white/5 ml-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -101,20 +101,28 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile menu content logic remains same but improved styling could be added below if needed */}
-
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-black border-t border-white/10 p-6 flex flex-col gap-6 md:hidden animate-fade-in shadow-2xl">
-            <Link href="/store" className="text-lg hover:text-gold transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-2xl border-t border-white/10 p-8 flex flex-col gap-8 md:hidden animate-fade-in shadow-2xl">
+            <Link href="/store" className="text-2xl font-arabic hover:text-gold transition-colors flex justify-between items-center" onClick={() => setIsMobileMenuOpen(false)}>
               {t('store')}
+              <ArrowRight size={20} className="opacity-20 translate-x-4 group-hover:translate-x-0 transition-transform" />
             </Link>
             {isAdminUser && (
-              <Link href="/admin" className="text-lg text-gold font-bold flex items-center justify-between" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/admin" className="text-2xl text-gold font-bold flex items-center justify-between p-4 bg-gold/5 border border-gold/10 rounded-2xl" onClick={() => setIsMobileMenuOpen(false)}>
                 {t('admin_dashboard')}
-                <div className="w-2 h-2 bg-gold rounded-full" />
+                <div className="w-2.5 h-2.5 bg-gold rounded-full animate-pulse shadow-[0_0_10px_rgba(212,175,55,1)]" />
               </Link>
             )}
+            <div className="pt-8 border-t border-white/5 flex flex-col gap-4">
+               <button 
+                  onClick={() => { setLanguage(language === 'ar' ? 'fr' : 'ar'); setIsMobileMenuOpen(false); }}
+                  className="w-full py-4 rounded-xl border border-white/10 text-white/60 flex items-center justify-center gap-3 font-bold"
+               >
+                  <Languages size={18} />
+                  {language === 'ar' ? 'Switch to French' : 'التحويل للعربية'}
+               </button>
+            </div>
           </div>
         )}
       </nav>

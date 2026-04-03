@@ -39,6 +39,23 @@ export async function getProducts(filters?: ProductFilters) {
   return results as Product[]
 }
 
+export async function getProductById(id: string) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, brands(name), product_tags(tags(name))')
+    .eq('id', id)
+    .single()
+
+  if (error) {
+    console.error('Error fetching product:', error)
+    return null
+  }
+
+  return data as Product
+}
+
 export async function getBrands() {
   const supabase = await createClient()
   const { data } = await supabase.from('brands').select('*')
