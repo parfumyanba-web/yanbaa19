@@ -143,19 +143,19 @@ const HeroCanvas = () => {
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
           
           <motion.div style={{ opacity: titleOpacity, y: titleY }} className="flex flex-col items-center gap-4 px-6 text-center">
-            <h1 className="text-6xl md:text-9xl font-arabic gold-text-gradient drop-shadow-2xl">{t('hero_title')}</h1>
-            <p className="text-xl md:text-3xl text-white/60 tracking-[0.4em] uppercase font-light">{t('hero_subtitle')}</p>
+            <h1 className="text-4xl sm:text-6xl md:text-9xl font-arabic gold-text-gradient drop-shadow-2xl">{t('hero_title')}</h1>
+            <p className="text-sm sm:text-xl md:text-3xl text-white/60 tracking-[0.2em] md:tracking-[0.4em] uppercase font-light">{t('hero_subtitle')}</p>
           </motion.div>
 
-          <motion.div style={{ opacity: feature1Opacity, y: feature1Y }} className="absolute flex flex-col items-center gap-6 px-6 text-center max-w-4xl">
-            <span className="text-gold text-xs font-bold tracking-[0.5em] uppercase">{t('new_arrivals')}</span>
-            <h2 className="text-4xl md:text-7xl font-arabic text-white drop-shadow-lg">{t('quality_title')}</h2>
-            <p className="text-lg md:text-xl text-white/40 font-light leading-relaxed">{t('quality_desc')}</p>
+          <motion.div style={{ opacity: feature1Opacity, y: feature1Y }} className="absolute flex flex-col items-center gap-4 md:gap-6 px-6 text-center max-w-4xl">
+            <span className="text-gold text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase">{t('new_arrivals')}</span>
+            <h2 className="text-3xl md:text-7xl font-arabic text-white drop-shadow-lg">{t('quality_title')}</h2>
+            <p className="text-sm md:text-xl text-white/40 font-light leading-relaxed">{t('quality_desc')}</p>
           </motion.div>
 
-          <motion.div style={{ opacity: feature2Opacity, y: feature2Y }} className="absolute flex flex-col items-center gap-8 px-6 text-center">
-            <div className="w-px h-24 bg-gradient-to-b from-transparent via-gold to-transparent" />
-            <h2 className="text-5xl md:text-8xl font-arabic gold-text-gradient">{t('luxury_collection')}</h2>
+          <motion.div style={{ opacity: feature2Opacity, y: feature2Y }} className="absolute flex flex-col items-center gap-6 md:gap-8 px-6 text-center">
+            <div className="hidden md:block w-px h-24 bg-gradient-to-b from-transparent via-gold to-transparent" />
+            <h2 className="text-3xl md:text-8xl font-arabic gold-text-gradient">{t('luxury_collection')}</h2>
             <div className="flex gap-4">
                <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
                <div className="w-2 h-2 rounded-full bg-gold/50 animate-pulse delay-75" />

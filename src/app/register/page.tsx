@@ -59,7 +59,7 @@ const RegisterPage = () => {
                </div>
                <div>
                  <label className="text-[10px] uppercase tracking-widest text-white/50 ml-1">{t('phone')}</label>
-                 <input name="phone" type="tel" required placeholder="05 / 06 / 07 ..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none text-white text-sm" />
+                 <input name="phone" type="tel" required autoComplete="off" placeholder="05 / 06 / 07 ..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none text-white text-sm" />
                </div>
                <div>
                  <label className="text-[10px] uppercase tracking-widest text-white/50 ml-1">{t('password')}</label>

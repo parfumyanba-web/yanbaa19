@@ -126,7 +126,7 @@ export const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, r
       {/* Recent Orders History */}
       <div className="glass-card p-8 rounded-[2.5rem] border border-white/5">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl font-bold font-arabic">{t('no_orders')}</h3>
+          <h3 className="text-xl font-bold font-arabic">{t('order_history') || 'Order History'}</h3>
           <Link href="/dashboard/orders" className="text-gold text-[10px] font-bold uppercase tracking-[0.2em] hover:underline flex items-center gap-2">
             {t('view_details')} <ArrowRight size={14} className={direction === 'rtl' ? 'rotate-180' : ''} />
           </Link>

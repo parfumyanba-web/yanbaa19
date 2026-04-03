@@ -158,6 +158,8 @@ const CheckoutPage = () => {
                         <input 
                            value={shippingInfo.phone}
                            onChange={(e) => setShippingInfo({...shippingInfo, phone: e.target.value})}
+                           type="tel"
+                           autoComplete="off"
                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all text-left"
                            dir="ltr"
                         />
