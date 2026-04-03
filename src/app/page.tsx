@@ -58,10 +58,10 @@ export default function Home() {
       <section className="relative z-10 py-32 px-6 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-            <div className="space-y-2">
-               <span className="text-gold text-xs uppercase tracking-[0.3em] font-bold">New Arrivals</span>
-               <h2 className="text-4xl md:text-5xl font-arabic text-white">العطور الجديدة</h2>
-            </div>
+             <div className="space-y-2">
+                <span className="text-gold text-xs uppercase tracking-[0.3em] font-bold">{t('new_arrivals')}</span>
+                <h2 className="text-4xl md:text-5xl font-arabic text-white">العطور الجديدة</h2>
+             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
             {!loading && newArrivals.length > 0 ? (

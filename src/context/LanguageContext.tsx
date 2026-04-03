@@ -57,6 +57,7 @@ const translations: Record<Language, Record<string, string>> = {
     quality_title: 'الجودة والتميز في كل قطرة',
     quality_desc: 'نقدم لكم أجود أنواع العطور والزيوت العطرية بالجملة، مصممة خصيصاً لتلبية احتياجات سوقكم وتجاوز توقعات عملائكم.',
     scroll_explore: 'مرر للأسفل لاكتشاف المزيد',
+    new_arrivals: 'وصل حديثاً',
     
     // Footer & General
     rights: 'جميع الحقوق محفوظة - ينبع للعطور',
@@ -66,6 +67,31 @@ const translations: Record<Language, Record<string, string>> = {
     terms_of_service: 'شروط الخدمة',
     shipping_policy: 'سياسة الشحن',
     loading: 'جاري التحميل...',
+    address_label: 'العنوان',
+    phone_label: 'الهاتف',
+    whatsapp_label: 'واتساب',
+    follow_us: 'تابعونا',
+    
+    // Cart
+    your_cart: 'سلة المشتريات',
+    cart_empty: 'السلة فارغة حالياً',
+    subtotal: 'المجموع الفرعي',
+    checkout: 'إتمام الطلب',
+    continue_shopping: 'مواصلة التسوق',
+    items_count: 'قطع',
+    
+    // Dashboard Components
+    order_ref: 'رقم الطلب',
+    order_status: 'حالة الطلب',
+    total_amount: 'المبلغ الإجمالي',
+    paid_amount: 'المبلغ المدفوع',
+    view_details: 'عرض التفاصيل',
+    no_orders: 'أحدث الطلبات',
+    stock: 'المخزون',
+    dashboard_overview: 'نظرة عامة',
+    revenue: 'الأرباح',
+    active_partners: 'الشركاء النشطون',
+    total_inventory: 'إجمالي المخزون',
   },
   fr: {
     // Navbar
@@ -111,6 +137,7 @@ const translations: Record<Language, Record<string, string>> = {
     quality_title: 'Qualité et Excellence',
     quality_desc: 'Nous vous offrons les meilleures huiles parfumées en gros, conçues pour sublimer votre offre commerciale.',
     scroll_explore: 'Défiler pour explorer',
+    new_arrivals: 'Nouveautés',
     
     // Footer & General
     rights: 'Tous droits réservés - Yanba Parfums',
@@ -120,6 +147,31 @@ const translations: Record<Language, Record<string, string>> = {
     terms_of_service: 'Conditions d\'utilisation',
     shipping_policy: 'Politique de livraison',
     loading: 'Chargement en cours...',
+    address_label: 'Adresse',
+    phone_label: 'Téléphone',
+    whatsapp_label: 'WhatsApp',
+    follow_us: 'Suivez-nous',
+
+    // Cart
+    your_cart: 'Mon Panier',
+    cart_empty: 'Votre panier est vide',
+    subtotal: 'Sous-total',
+    checkout: 'Commander',
+    continue_shopping: 'Continuer mes achats',
+    items_count: 'articles',
+
+    // Dashboard Components
+    order_ref: 'Réf. Commande',
+    order_status: 'État',
+    total_amount: 'Montant Total',
+    paid_amount: 'Montant Payé',
+    view_details: 'Détails',
+    no_orders: 'Commandes Récentes',
+    stock: 'Stock',
+    dashboard_overview: 'Vue d\'ensemble',
+    revenue: 'Revenus',
+    active_partners: 'Partenaires Actifs',
+    total_inventory: 'Stock Total',
   }
 }
 

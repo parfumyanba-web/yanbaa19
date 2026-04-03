@@ -23,6 +23,7 @@ export const SettingsForm = ({ initialSettings }: { initialSettings: any[] }) =>
       name: formData.get('store_name'),
       email: formData.get('contact_email'),
       phone: formData.get('contact_phone'),
+      whatsapp: formData.get('whatsapp_number'),
     }
 
     const { success, error } = await updatePlatformSettings('store_info', storeInfo)
@@ -72,6 +73,17 @@ export const SettingsForm = ({ initialSettings }: { initialSettings: any[] }) =>
                 name="contact_phone"
                 defaultValue={storeInfo.phone || '+213 123 456 789'}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors"
+                placeholder="+213..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase tracking-widest text-white/40">WhatsApp Number</label>
+              <input 
+                name="whatsapp_number"
+                defaultValue={storeInfo.whatsapp || '+213...'}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors"
+                placeholder="+213..."
               />
             </div>
           </div>

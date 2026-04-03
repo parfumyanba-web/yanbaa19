@@ -39,57 +39,69 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-500 ${
-        isScrolled ? 'py-4 bg-black/60 backdrop-blur-xl border-b border-white/10' : 'py-8 bg-transparent'
+      <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-700 ${
+        isScrolled ? 'py-5 bg-black/40 backdrop-blur-2xl border-b border-white/5 shadow-2xl' : 'py-10 bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="text-2xl md:text-3xl font-arabic gold-text-gradient font-bold tracking-wider">
-            ينبع
-          </Link>
+        <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
+          {/* Logo Section */}
+          <div className="flex items-center gap-16">
+            <Link href="/" className="text-3xl md:text-4xl font-arabic gold-text-gradient font-bold tracking-tighter hover:scale-105 transition-transform shrink-0">
+              ينبع
+            </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-12 text-sm font-light tracking-widest uppercase text-white/70">
-            <Link href="/store" className="hover:text-gold transition-colors">{t('store')}</Link>
-            {isAdminUser && (
-              <Link href="/admin" className="text-gold font-bold flex items-center gap-2 hover:scale-105 transition-transform px-4 py-2 border border-gold/20 rounded-full bg-gold/5">
-                <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
-                {t('admin_dashboard')}
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex items-center gap-10 text-[11px] font-bold tracking-[0.3em] uppercase text-white/50">
+              <Link href="/store" className="hover:text-white transition-all relative group py-2">
+                {t('store')}
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-gold transition-all group-hover:w-full" />
               </Link>
-            )}
+              {isAdminUser && (
+                <Link href="/admin" className="text-gold font-bold flex items-center gap-3 px-5 py-2.5 border border-gold/10 rounded-full bg-gold/5 hover:bg-gold hover:text-black transition-all duration-500 group">
+                  <div className="w-1.5 h-1.5 bg-gold rounded-full group-hover:bg-black animate-pulse" />
+                  {t('admin_dashboard')}
+                </Link>
+              )}
+            </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-6">
+          {/* Action Icons Section */}
+          <div className="flex items-center gap-4">
             <button 
               onClick={() => setLanguage(language === 'ar' ? 'fr' : 'ar')}
-              className="text-white/70 hover:text-gold transition-colors p-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
+              className="text-white/40 hover:text-gold transition-all px-4 py-2 border border-white/5 rounded-xl hover:bg-white/5 flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.2em]"
             >
-              <Languages size={18} />
-              {language === 'ar' ? 'FR' : 'عربي'}
+              <Languages size={14} className="opacity-50" />
+              {language === 'ar' ? 'FRANÇAIS' : 'عربي'}
             </button>
-            <Link href="/login" className="text-white/70 hover:text-gold transition-colors p-2">
+            
+            <div className="h-6 w-px bg-white/10 mx-2" />
+
+            <Link href="/login" className="text-white/40 hover:text-gold transition-all p-3 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5">
               <User size={20} />
             </Link>
+            
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="relative text-white/70 hover:text-gold transition-colors p-2"
+              className="relative text-white/40 hover:text-gold transition-all p-3 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5 group"
             >
               <ShoppingBag size={20} />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gold text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce">
+                <span className="absolute top-1 right-1 bg-gold text-black text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform">
                   {totalItems}
                 </span>
               )}
             </button>
+
             <button 
-              className="md:hidden text-white/70 p-2"
+              className="md:hidden text-white/40 p-3 hover:bg-white/5 rounded-xl border border-white/5 ml-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
+
+        {/* Mobile menu content logic remains same but improved styling could be added below if needed */}
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (

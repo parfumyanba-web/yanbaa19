@@ -18,6 +18,7 @@ interface CartStore {
   removeItem: (id: string, quantity_label: string) => void
   clearCart: () => void
   totalPrice: () => number
+  updateQuantity: (id: string, quantity_label: string, count: number) => void
 }
 
 export const useCartStore = create<CartStore>()(
@@ -51,6 +52,15 @@ export const useCartStore = create<CartStore>()(
       clearCart: () => set({ items: [] }),
       totalPrice: () => {
         return get().items.reduce((total, item) => total + item.price * item.quantity_count, 0)
+      },
+      updateQuantity: (id, quantity_label, count) => {
+        set({
+          items: get().items.map((item) =>
+            item.id === id && item.quantity_label === quantity_label
+              ? { ...item, quantity_count: count }
+              : item
+          ),
+        })
       },
     }),
     {

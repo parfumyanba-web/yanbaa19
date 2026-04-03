@@ -1,118 +1,114 @@
-import React from 'react'
+'use client'
+
+import React, { useEffect, useState } from 'react'
 import { TrendingUp, ShoppingCart, Users, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useLanguage } from '@/context/LanguageContext'
 
-const AdminOverview = async () => {
-  const supabase = await createClient()
+const AdminOverview = () => {
+  const { t } = useLanguage()
+  const [metrics, setMetrics] = useState<any>({
+    revenue: 0,
+    orders: 0,
+    partners: 0,
+    inventory: 0
+  })
+  const [recentOrders, setRecentOrders] = useState<any[]>([])
+  const [topProducts, setTopProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // 1. Fetch Revenue
-  const { data: revenueData } = await supabase
-    .from('orders')
-    .select('paid_amount')
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient()
+      
+      // 1. Revenue
+      const { data: rev } = await supabase.from('orders').select('paid_amount')
+      const totalRev = rev?.reduce((acc: number, curr: any) => acc + (Number(curr.paid_amount) || 0), 0) || 0
 
-  const totalRevenue = revenueData?.reduce((acc: number, curr: any) => acc + (Number(curr.paid_amount) || 0), 0) || 0
+      // 2. Orders
+      const { count: ord } = await supabase.from('orders').select('*', { count: 'exact', head: true }).not('status', 'in', '("delivered","cancelled")')
 
-  // 2. Fetch Active Orders
-  const { count: activeOrdersCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .not('status', 'in', '("delivered","cancelled")')
+      // 3. Partners
+      const { count: prt } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'client')
 
-  // 3. Fetch Partners
-  const { count: userCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'client')
+      // 4. Inventory
+      const { data: inv } = await supabase.from('inventory').select('quantity_in_grams')
+      const totalInv = (inv?.reduce((acc: number, curr: any) => acc + (curr.quantity_in_grams || 0), 0) || 0) / 1000
 
-  // 4. Fetch Inventory
-  const { data: inventoryData } = await supabase
-    .from('inventory')
-    .select('quantity_in_grams')
+      // 5. Recent
+      const { data: rec } = await supabase.from('orders').select('*, profiles(full_name)').order('created_at', { ascending: false }).limit(5)
 
-  const totalInventoryGrams = inventoryData?.reduce((acc: number, curr: any) => acc + (curr.quantity_in_grams || 0), 0) || 0
-  const totalInventoryKg = (totalInventoryGrams / 1000).toFixed(1)
+      // 6. Products
+      const { data: prd } = await supabase.from('products').select('*, brands(name), inventory(quantity_in_grams)').limit(3)
 
-  // 5. Fetch Recent Orders
-  const { data: recentOrders } = await supabase
-    .from('orders')
-    .select('*, profiles(full_name)')
-    .order('created_at', { ascending: false })
-    .limit(5)
+      setMetrics({ revenue: totalRev, orders: ord, partners: prt, inventory: totalInv })
+      setRecentOrders(rec || [])
+      setTopProducts(prd || [])
+      setLoading(false)
+    }
+    fetchData()
+  }, [])
 
-  // 6. Fetch "Best Sellers" (Using actual stock levels from inventory for realism)
-  const { data: topProductsData } = await supabase
-    .from('products')
-    .select('*, brands(name), inventory(quantity_in_grams)')
-    .limit(3)
+  if (loading) return <div className="h-96 flex items-center justify-center text-gold underline font-bold animate-pulse uppercase tracking-widest">{t('loading')}</div>
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 animate-fade-in">
       <header>
-        <h1 className="text-3xl font-bold text-white/90">Dashboard Overview</h1>
-        <p className="text-white/40 text-sm">Real-time performance metrics from Supabase</p>
+        <h1 className="text-3xl font-bold text-white/90 font-arabic">{t('admin_dashboard')}</h1>
+        <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1 opacity-50">{t('dashboard_overview')}</p>
       </header>
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value={`${totalRevenue.toLocaleString()} DZD`} change="+0%" icon={<DollarSign className="text-gold" />} />
-        <StatCard title="Active Orders" value={activeOrdersCount || 0} change="+0%" icon={<ShoppingCart className="text-gold" />} />
-        <StatCard title="B2B Partners" value={userCount || 0} change="+0%" icon={<Users className="text-gold" />} />
-        <StatCard title="Total Inventory" value={`${totalInventoryKg} Kg`} change="+0%" icon={<TrendingUp className="text-gold" />} />
+        <StatCard title={t('total_amount')} value={`${metrics.revenue.toLocaleString()} DZD`} change="+0%" icon={<DollarSign className="text-gold" />} />
+        <StatCard title={t('order_status')} value={metrics.orders || 0} change="+0%" icon={<ShoppingCart className="text-gold" />} />
+        <StatCard title={t('partner_portal')} value={metrics.partners || 0} change="+0%" icon={<Users className="text-gold" />} />
+        <StatCard title="Inventory" value={`${metrics.inventory.toFixed(1)} Kg`} change="+0%" icon={<TrendingUp className="text-gold" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Orders Table */}
         <div className="lg:col-span-2 glass-card p-8">
            <div className="flex items-center justify-between mb-8">
-             <h3 className="text-xl font-bold">Recent Orders</h3>
-             <Link href="/admin/orders" className="text-gold text-xs uppercase tracking-widest hover:underline">View All</Link>
+             <h3 className="text-xl font-bold">{t('no_orders')}</h3>
+             <Link href="/admin/orders" className="text-gold text-xs uppercase tracking-widest hover:underline">{t('view_details')}</Link>
            </div>
            <div className="overflow-x-auto">
              <table className="w-full text-left">
                <thead>
                  <tr className="text-white/30 text-[10px] uppercase tracking-widest border-b border-white/5">
-                   <th className="pb-4 font-normal">Order ID</th>
-                   <th className="pb-4 font-normal">Customer</th>
-                   <th className="pb-4 font-normal">Amount</th>
-                   <th className="pb-4 font-normal">Status</th>
+                   <th className="pb-4 font-normal">{t('order_ref')}</th>
+                   <th className="pb-4 font-normal">{t('full_name')}</th>
+                   <th className="pb-4 font-normal">{t('total_amount')}</th>
+                   <th className="pb-4 font-normal">{t('order_status')}</th>
                  </tr>
                </thead>
                <tbody className="text-sm">
-                 {recentOrders?.map((order: any) => (
+                 {recentOrders.map((order: any) => (
                    <OrderRow 
                      key={order.id} 
                      id={`#${order.id.slice(0, 8)}`} 
-                     name={order.profiles?.full_name || 'Unknown'} 
+                     name={order.profiles?.full_name || '...'} 
                      amount={`${Number(order.total_price).toLocaleString()} DZD`} 
                      status={order.status} 
                    />
                  ))}
-                 {(!recentOrders || recentOrders.length === 0) && (
-                   <tr>
-                     <td colSpan={4} className="py-8 text-center text-white/20 italic">No orders found</td>
-                   </tr>
-                 )}
                </tbody>
              </table>
            </div>
         </div>
 
-        {/* Top Products */}
         <div className="glass-card p-8">
-           <h3 className="text-xl font-bold mb-8">Inventory Stock</h3>
+           <h3 className="text-xl font-bold mb-8">Stock</h3>
            <div className="space-y-6">
-              {topProductsData?.map((item: any) => (
+              {topProducts.map((item: any) => (
                 <TopProduct 
                   key={item.id}
                   name={item.name} 
-                  category={item.brands?.name || 'Fragrance'} 
+                  category={item.brands?.name || '...'} 
                   units={`${((item.inventory?.[0]?.quantity_in_grams || 0) / 1000).toFixed(1)}kg`} 
                 />
               ))}
-              {(!topProductsData || topProductsData.length === 0) && (
-                <p className="text-white/20 italic text-sm">No products found</p>
-              )}
            </div>
         </div>
       </div>
