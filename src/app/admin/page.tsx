@@ -6,9 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import { updateOrderStatus, updateOrderPayment } from '@/actions/orders'
+import { generateInvoice, updateInvoicePayment } from '@/actions/invoices'
+import InvoiceView from '@/components/invoice/InvoiceView'
 
 const AdminOverview = () => {
   const { t } = useLanguage()
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null)
+  const [invoiceOrder, setInvoiceOrder] = useState<any>(null)
   const [metrics, setMetrics] = useState<any>({
     revenue: 0,
     orders: 0,
@@ -36,8 +40,8 @@ const AdminOverview = () => {
     const { data: inv } = await supabase.from('inventory').select('quantity_in_grams')
     const totalInv = (inv?.reduce((acc: number, curr: any) => acc + (curr.quantity_in_grams || 0), 0) || 0) / 1000
 
-    // 5. Recent Orders with profiles info
-    const { data: rec } = await supabase.from('orders').select('*, profiles(full_name)').order('created_at', { ascending: false }).limit(6)
+    // 5. Recent Orders with profiles info AND invoices
+    const { data: rec } = await supabase.from('orders').select('*, profiles(full_name), invoices(*)').order('created_at', { ascending: false }).limit(6)
 
     // 6. Top/Low Stock Products
     const { data: prd } = await supabase.from('products').select('*, brands(name), inventory(quantity_in_grams)').order('created_at', { ascending: false }).limit(4)
@@ -46,6 +50,21 @@ const AdminOverview = () => {
     setRecentOrders(rec || [])
     setTopProducts(prd || [])
     setLoading(false)
+  }
+
+  const handleGenerateInvoice = async (orderId: string) => {
+    const res = await generateInvoice(orderId)
+    if (res.success) {
+      alert(t('invoice_success'))
+      fetchData()
+    } else {
+      alert(res.error)
+    }
+  }
+
+  const handleViewInvoice = (order: any) => {
+    setInvoiceOrder(order)
+    setSelectedInvoice(order.invoices[0])
   }
 
   useEffect(() => {
@@ -61,13 +80,17 @@ const AdminOverview = () => {
     if (res.success) fetchData()
   }
 
-  const handlePaymentUpdate = async (id: string, fullAmount: number) => {
+  const handlePaymentUpdate = async (id: string, fullAmount: number, invoiceId?: string) => {
     const amountStr = prompt(t('enter_paid_amount'), fullAmount.toString())
     if (amountStr !== null) {
       const amount = parseFloat(amountStr)
       if (!isNaN(amount)) {
-        const res = await updateOrderPayment(id, amount)
-        if (res.success) fetchData()
+        if (invoiceId) {
+          await updateInvoicePayment(invoiceId, amount)
+        } else {
+          await updateOrderPayment(id, amount)
+        }
+        fetchData()
       }
     }
   }
@@ -75,7 +98,17 @@ const AdminOverview = () => {
   if (loading) return <div className="h-96 flex items-center justify-center text-gold underline font-bold animate-pulse uppercase tracking-[0.3em] font-arabic">{t('loading')}</div>
 
   return (
-    <div className="space-y-12 animate-fade-in">
+    <div className="space-y-12 animate-fade-in relative">
+      {selectedInvoice && invoiceOrder && (
+        <InvoiceView 
+          invoice={selectedInvoice} 
+          order={invoiceOrder} 
+          onClose={() => {
+            setSelectedInvoice(null)
+            setInvoiceOrder(null)
+          }} 
+        />
+      )}
       <header>
         <h1 className="text-4xl font-bold text-white/90 font-arabic gold-text-gradient">{t('admin_dashboard')}</h1>
         <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mt-2 opacity-50">{t('dashboard_overview')}</p>
@@ -115,13 +148,29 @@ const AdminOverview = () => {
                     <div className="text-right hidden sm:block">
                       <p className="font-bold text-gold text-sm">{Number(order.total_price).toLocaleString()} DZD</p>
                       <button 
-                        onClick={() => handlePaymentUpdate(order.id, order.total_price)}
+                        onClick={() => handlePaymentUpdate(order.id, order.total_price, order.invoices?.[0]?.id)}
                         className="text-[9px] text-white/20 uppercase tracking-widest hover:text-white transition-colors"
                       >
                         Paid: {Number(order.paid_amount || 0).toLocaleString()}
                       </button>
                     </div>
                     
+                    {order.invoices && order.invoices.length > 0 ? (
+                      <button 
+                        onClick={() => handleViewInvoice(order)}
+                        className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white/40 hover:text-gold transition-colors text-[9px] uppercase tracking-widest font-bold"
+                      >
+                        {t('view_invoice')}
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleGenerateInvoice(order.id)}
+                        className="px-3 py-1.5 bg-gold/10 border border-gold/20 rounded-lg text-gold hover:bg-gold/20 transition-all text-[9px] uppercase tracking-widest font-bold"
+                      >
+                        {t('generate_invoice')}
+                      </button>
+                    )}
+
                     <button 
                       onClick={() => handleStatusUpdate(order.id, order.status)}
                       className={`px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] border transition-all ${getStatusStyle(order.status)}`}

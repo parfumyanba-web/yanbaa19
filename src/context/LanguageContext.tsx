@@ -110,6 +110,21 @@ const translations: Record<Language, Record<string, string>> = {
     total_purchases: 'إجمالي المشتريات',
     in_process: 'قيد المعالجة',
     available: 'متاح',
+    
+    // Invoices
+    invoice_title: 'فاتورة',
+    generate_invoice: 'إنشاء فاتورة',
+    invoice_number: 'رقم الفاتورة',
+    invoice_date: 'تاريخ الفاتورة',
+    billing_to: 'فوترة إلى',
+    payment_status: 'حالة الدفع',
+    remaining_amount: 'المبلغ المتبقي',
+    unpaid: 'غير مدفوع',
+    partial: 'دفع جزئي',
+    paid: 'مدفوع بالكامل',
+    download_invoice: 'تحميل الفاتورة',
+    view_invoice: 'عرض الفاتورة',
+    invoice_success: 'تم إنشاء الفاتورة بنجاح!',
   },
   fr: {
     // Navbar
@@ -197,6 +212,21 @@ const translations: Record<Language, Record<string, string>> = {
     total_purchases: 'Total des Achats',
     in_process: 'En cours',
     available: 'Disponible',
+
+    // Invoices
+    invoice_title: 'Facture',
+    generate_invoice: 'Générer Facture',
+    invoice_number: 'N° Facture',
+    invoice_date: 'Date de Facture',
+    billing_to: 'Facturé à',
+    payment_status: 'Statut de Paiement',
+    remaining_amount: 'Reste à Payer',
+    unpaid: 'Impayé',
+    partial: 'Paiement Partiel',
+    paid: 'Payé',
+    download_invoice: 'Télécharger la Facture',
+    view_invoice: 'Voir la Facture',
+    invoice_success: 'Facture générée avec succès !',
 
     // Checkout
     checkout_title: 'Caisse',

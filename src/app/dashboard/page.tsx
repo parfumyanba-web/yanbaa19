@@ -1,15 +1,33 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { ShoppingBag, ChevronRight, Package, Loader2, ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import Link from 'next/link'
+import InvoiceView from '@/components/invoice/InvoiceView'
 
 const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, recentOrders }: any) => {
   const { t, direction } = useLanguage()
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null)
+  const [invoiceOrder, setInvoiceOrder] = useState<any>(null)
+
+  const handleViewInvoice = (order: any) => {
+    setInvoiceOrder(order)
+    setSelectedInvoice(order.invoices[0])
+  }
 
   return (
-    <div className="space-y-8 animate-fade-in px-4 sm:px-0">
+    <div className="space-y-8 animate-fade-in px-4 sm:px-0 relative">
+      {selectedInvoice && invoiceOrder && (
+        <InvoiceView 
+          invoice={selectedInvoice} 
+          order={invoiceOrder} 
+          onClose={() => {
+            setSelectedInvoice(null)
+            setInvoiceOrder(null)
+          }} 
+        />
+      )}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
            <h1 className="text-3xl font-bold font-arabic gold-text-gradient">{t('welcome_back')}, {profile?.full_name}</h1>
@@ -50,15 +68,17 @@ const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, recentOr
           </Link>
         </div>
         <div className="space-y-4">
-           {recentOrders?.map((order: any) => (
-             <RecentOrderRow 
-               key={order.id}
-               id={`#ORD-${order.id.slice(0, 4).toUpperCase()}`} 
-               date={new Date(order.created_at).toLocaleDateString()} 
-               status={order.status} 
-               total={`${Number(order.total_price).toLocaleString()} DZD`} 
-             />
-           ))}
+            {recentOrders?.map((order: any) => (
+              <RecentOrderRow 
+                key={order.id}
+                id={`#ORD-${order.id.slice(0, 4).toUpperCase()}`} 
+                date={new Date(order.created_at).toLocaleDateString()} 
+                status={order.status} 
+                total={`${Number(order.total_price).toLocaleString()} DZD`} 
+                invoice={order.invoices?.[0]}
+                onViewInvoice={() => handleViewInvoice(order)}
+              />
+            ))}
            {(!recentOrders || recentOrders.length === 0) && (
              <div className="text-center py-12 opacity-20 space-y-4">
                <ShoppingBag size={48} strokeWidth={1} className="mx-auto" />
@@ -83,7 +103,8 @@ const StatCard = ({ label, value, icon, highlight }: any) => (
   </div>
 )
 
-const RecentOrderRow = ({ id, date, status, total }: any) => {
+const RecentOrderRow = ({ id, date, status, total, invoice, onViewInvoice }: any) => {
+  const { t } = useLanguage()
   const statusColors: any = {
     pending: "text-amber-400 bg-amber-400/10 border-amber-400/20",
     confirmed: "text-blue-400 bg-blue-400/10 border-blue-400/20",
@@ -102,11 +123,22 @@ const RecentOrderRow = ({ id, date, status, total }: any) => {
           <p className="text-[10px] text-white/30 uppercase tracking-tighter">{date}</p>
         </div>
       </div>
-      <div className="text-right flex items-center gap-10">
+      <div className="text-right flex items-center gap-6 sm:gap-10">
+         {invoice && (
+           <button 
+             onClick={(e) => {
+               e.stopPropagation()
+               onViewInvoice()
+             }}
+             className="px-3 py-1.5 bg-gold/10 border border-gold/20 rounded-lg text-gold hover:bg-gold/20 transition-all text-[9px] uppercase tracking-widest font-bold"
+           >
+             {t('view_invoice')}
+           </button>
+         )}
          <span className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] border ${statusColors[status] || 'text-white/40 bg-white/5'}`}>
            {status}
          </span>
-         <p className="font-bold text-white/90 text-sm">{total}</p>
+         <p className="font-bold text-white/90 text-sm hidden sm:block">{total}</p>
          <ChevronRight size={18} className="text-white/10 group-hover:text-gold transition-colors" />
       </div>
     </div>
@@ -125,7 +157,13 @@ export default async function DashboardPage() {
   const { count: activeOrdersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).not('status', 'in', '("delivered","cancelled")')
   const { data: purchaseData } = await supabase.from('orders').select('total_price').eq('user_id', user.id).eq('status', 'delivered')
   const totalPurchases = purchaseData?.reduce((acc: number, curr: any) => acc + (Number(curr.total_price) || 0), 0) || 0
-  const { data: recentOrders } = await supabase.from('orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5)
+  
+  const { data: recentOrders } = await supabase
+    .from('orders')
+    .select('*, invoices(*), order_items(*, products(name))')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(5)
 
   return (
     <DashboardContent 
