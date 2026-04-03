@@ -1,6 +1,7 @@
 import React from 'react'
 import { TrendingUp, ShoppingCart, Users, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 
 const AdminOverview = async () => {
   const supabase = await createClient()
@@ -10,7 +11,7 @@ const AdminOverview = async () => {
     .from('orders')
     .select('paid_amount')
 
-  const totalRevenue = revenueData?.reduce((acc, curr) => acc + (Number(curr.paid_amount) || 0), 0) || 0
+  const totalRevenue = revenueData?.reduce((acc: number, curr: any) => acc + (Number(curr.paid_amount) || 0), 0) || 0
 
   // 2. Fetch Active Orders
   const { count: activeOrdersCount } = await supabase
@@ -29,7 +30,7 @@ const AdminOverview = async () => {
     .from('inventory')
     .select('quantity_in_grams')
 
-  const totalInventoryGrams = inventoryData?.reduce((acc, curr) => acc + (curr.quantity_in_grams || 0), 0) || 0
+  const totalInventoryGrams = inventoryData?.reduce((acc: number, curr: any) => acc + (curr.quantity_in_grams || 0), 0) || 0
   const totalInventoryKg = (totalInventoryGrams / 1000).toFixed(1)
 
   // 5. Fetch Recent Orders
@@ -38,6 +39,12 @@ const AdminOverview = async () => {
     .select('*, profiles(full_name)')
     .order('created_at', { ascending: false })
     .limit(5)
+
+  // 6. Fetch "Best Sellers" (Using actual stock levels from inventory for realism)
+  const { data: topProductsData } = await supabase
+    .from('products')
+    .select('*, brands(name), inventory(quantity_in_grams)')
+    .limit(3)
 
   return (
     <div className="space-y-10">
@@ -59,7 +66,7 @@ const AdminOverview = async () => {
         <div className="lg:col-span-2 glass-card p-8">
            <div className="flex items-center justify-between mb-8">
              <h3 className="text-xl font-bold">Recent Orders</h3>
-             <button className="text-gold text-xs uppercase tracking-widest hover:underline">View All</button>
+             <Link href="/admin/orders" className="text-gold text-xs uppercase tracking-widest hover:underline">View All</Link>
            </div>
            <div className="overflow-x-auto">
              <table className="w-full text-left">
@@ -91,13 +98,21 @@ const AdminOverview = async () => {
            </div>
         </div>
 
-        {/* Top Products (Placeholder for now) */}
+        {/* Top Products */}
         <div className="glass-card p-8">
-           <h3 className="text-xl font-bold mb-8">Best Sellers</h3>
+           <h3 className="text-xl font-bold mb-8">Inventory Stock</h3>
            <div className="space-y-6">
-              <TopProduct name="Santal Imperial" category="Oriental" units="450kg" />
-              <TopProduct name="Jasmin Doré" category="Floral" units="310kg" />
-              <TopProduct name="Oud Noir" category="Woody" units="280kg" />
+              {topProductsData?.map((item: any) => (
+                <TopProduct 
+                  key={item.id}
+                  name={item.name} 
+                  category={item.brands?.name || 'Fragrance'} 
+                  units={`${((item.inventory?.[0]?.quantity_in_grams || 0) / 1000).toFixed(1)}kg`} 
+                />
+              ))}
+              {(!topProductsData || topProductsData.length === 0) && (
+                <p className="text-white/20 italic text-sm">No products found</p>
+              )}
            </div>
         </div>
       </div>

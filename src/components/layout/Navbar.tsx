@@ -52,7 +52,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-12 text-sm font-light tracking-widest uppercase text-white/70">
             <Link href="/store" className="hover:text-gold transition-colors">{t('store')}</Link>
             {isAdminUser && (
-              <Link href="/admin" className="text-gold font-bold flex items-center gap-2 hover:scale-105 transition-transform">
+              <Link href="/admin" className="text-gold font-bold flex items-center gap-2 hover:scale-105 transition-transform px-4 py-2 border border-gold/20 rounded-full bg-gold/5">
                 <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
                 {t('admin_dashboard')}
               </Link>

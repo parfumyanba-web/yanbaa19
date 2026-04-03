@@ -54,7 +54,35 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // 1. Handle Admin Route Protection
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    // Exclude /admin/login from protection to avoid loop
+    if (request.nextUrl.pathname !== '/admin/login') {
+      if (!user) {
+        return NextResponse.redirect(new URL('/admin/login', request.url))
+      }
+
+      // Check role
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    }
+  }
+
+  // 2. Handle Client Dashboard Protection
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
 
   return response
 }
