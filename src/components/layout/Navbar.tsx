@@ -57,7 +57,7 @@ const Navbar = () => {
               </Link>
               
               {/* Dedicated Admin Portal Link */}
-              <Link href="/admin/login" className="flex items-center gap-2 px-5 py-2.5 bg-gold/10 border border-gold/30 rounded-xl text-gold text-[11px] font-black tracking-widest hover:bg-gold hover:text-black transition-all duration-500 shadow-lg shadow-gold/5 group">
+              <Link href="/admin-login" className="flex items-center gap-2 px-5 py-2.5 bg-gold/10 border border-gold/30 rounded-xl text-gold text-[11px] font-black tracking-widest hover:bg-gold hover:text-black transition-all duration-500 shadow-lg shadow-gold/5 group">
                 <div className="w-1.5 h-1.5 bg-gold rounded-full group-hover:bg-black group-hover:scale-125 transition-all" />
                 ADMIN PORTAL
               </Link>

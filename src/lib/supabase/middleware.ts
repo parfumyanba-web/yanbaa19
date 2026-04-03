@@ -57,11 +57,9 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // 1. Handle Admin Route Protection
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Exclude /admin/login from protection to avoid loop
-    if (request.nextUrl.pathname !== '/admin/login') {
+  if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin-login')) {
       if (!user) {
-        return NextResponse.redirect(new URL('/admin/login', request.url))
+        return NextResponse.redirect(new URL('/admin-login', request.url))
       }
 
       // Check role

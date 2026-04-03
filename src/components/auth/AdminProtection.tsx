@@ -12,7 +12,7 @@ export default async function AdminProtection({ children }: AdminProtectionProps
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    redirect('/admin/login')
+    redirect('/admin-login')
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -23,7 +23,7 @@ export default async function AdminProtection({ children }: AdminProtectionProps
 
   if (profileError || profile?.role !== 'admin') {
     // Optionally log out if a non-admin tries to access admin routes
-    redirect('/admin/login?error=Unauthorized')
+    redirect('/admin-login?error=Unauthorized')
   }
 
   return (

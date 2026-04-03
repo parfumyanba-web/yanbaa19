@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState, useMemo } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
 import { motion, useScroll, useTransform } from 'framer-motion'
 
@@ -8,7 +8,7 @@ const HeroCanvas = () => {
   const { t } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [images, setImages] = useState<HTMLImageElement[]>([])
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const totalFrames = 240
   
@@ -34,56 +34,49 @@ const HeroCanvas = () => {
   const feature2Opacity = useTransform(scrollYProgress, [0.75, 0.85, 0.95], [0, 1, 1])
   const feature2Y = useTransform(scrollYProgress, [0.75, 0.95], [50, 0])
 
-  // Preload images with Promise.all for speed and stability
+  // Preload images
   useEffect(() => {
     let active = true
+    imagesRef.current = new Array(totalFrames).fill(null)
     
     const loadImages = async () => {
-      const total = totalFrames
       const firstBatchSize = 30 // Load enough to see initial motion
       
       // Batch 1: Critical frames
-      const firstBatch = []
+      const firstBatchPromises = []
       for (let i = 1; i <= firstBatchSize; i++) {
         const img = new Image()
         img.src = `/frames/ezgif-frame-${i.toString().padStart(3, '0')}.jpg`
-        firstBatch.push(new Promise((resolve) => {
-          img.onload = () => resolve(img)
+        firstBatchPromises.push(new Promise((resolve) => {
+          img.onload = () => {
+             imagesRef.current[i - 1] = img
+             resolve(img)
+          }
           img.onerror = () => resolve(null)
         }))
       }
       
-      const loadedFirst = await Promise.all(firstBatch)
-      if (active) {
-        setImages(loadedFirst.filter(Boolean) as HTMLImageElement[])
-        setIsLoading(false) // Show hero NOW
-      }
+      await Promise.all(firstBatchPromises)
+      if (active) setIsLoading(false) // Show hero NOW
 
       // Batch 2: Background frames
-      const secondBatch = []
-      for (let i = firstBatchSize + 1; i <= total; i++) {
+      for (let i = firstBatchSize + 1; i <= totalFrames; i++) {
         const img = new Image()
         img.src = `/frames/ezgif-frame-${i.toString().padStart(3, '0')}.jpg`
-        secondBatch.push(new Promise((resolve) => {
-          img.onload = () => resolve(img)
-          img.onerror = () => resolve(null)
-        }))
-      }
-
-      const loadedAll = await Promise.all(secondBatch)
-      if (active) {
-        setImages(prev => [...prev, ...loadedAll.filter(Boolean) as HTMLImageElement[]])
+        img.onload = () => {
+          if (active) imagesRef.current[i - 1] = img
+        }
       }
     }
 
     loadImages()
     return () => { active = false }
-  }, [])
+  }, [totalFrames])
 
-  // Canvas Drawing using requestAnimationFrame for 60fps
+  // Canvas Drawing using requestAnimationFrame
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || images.length === 0) return
+    if (!canvas) return
 
     const context = canvas.getContext('2d', { alpha: false })
     if (!context) return
@@ -91,8 +84,13 @@ const HeroCanvas = () => {
     let renderId: number
 
     const render = () => {
+      if (isLoading) {
+         renderId = requestAnimationFrame(render)
+         return
+      }
+
       const index = Math.floor(frameIndex.get()) - 1
-      const img = images[index] || images[0]
+      const img = imagesRef.current[index] || imagesRef.current[0]
       
       if (img) {
         const canvasWidth = canvas.width
@@ -100,7 +98,6 @@ const HeroCanvas = () => {
         const imgWidth = img.width
         const imgHeight = img.height
 
-        // Calculate object-fit: cover logic
         const scale = Math.max(canvasWidth / imgWidth, canvasHeight / imgHeight)
         const x = (canvasWidth / 2) - (imgWidth / 2) * scale
         const y = (canvasHeight / 2) - (imgHeight / 2) * scale
@@ -112,7 +109,7 @@ const HeroCanvas = () => {
 
     renderId = requestAnimationFrame(render)
     return () => cancelAnimationFrame(renderId)
-  }, [images, frameIndex])
+  }, [isLoading, frameIndex])
 
   // Responsive Resize
   useEffect(() => {
@@ -145,42 +142,20 @@ const HeroCanvas = () => {
         {/* Scroll-Synced Luxury Content */}
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
           
-          {/* Phase 1: Main Title */}
-          <motion.div 
-            style={{ opacity: titleOpacity, y: titleY }}
-            className="flex flex-col items-center gap-4 px-6 text-center"
-          >
-            <h1 className="text-6xl md:text-9xl font-arabic gold-text-gradient drop-shadow-2xl">
-              {t('hero_title')}
-            </h1>
-            <p className="text-xl md:text-3xl text-white/60 tracking-[0.4em] uppercase font-light">
-              {t('hero_subtitle')}
-            </p>
+          <motion.div style={{ opacity: titleOpacity, y: titleY }} className="flex flex-col items-center gap-4 px-6 text-center">
+            <h1 className="text-6xl md:text-9xl font-arabic gold-text-gradient drop-shadow-2xl">{t('hero_title')}</h1>
+            <p className="text-xl md:text-3xl text-white/60 tracking-[0.4em] uppercase font-light">{t('hero_subtitle')}</p>
           </motion.div>
 
-          {/* Phase 2: Quality Focus */}
-          <motion.div 
-            style={{ opacity: feature1Opacity, y: feature1Y }}
-            className="absolute flex flex-col items-center gap-6 px-6 text-center max-w-4xl"
-          >
+          <motion.div style={{ opacity: feature1Opacity, y: feature1Y }} className="absolute flex flex-col items-center gap-6 px-6 text-center max-w-4xl">
             <span className="text-gold text-xs font-bold tracking-[0.5em] uppercase">{t('new_arrivals')}</span>
-            <h2 className="text-4xl md:text-7xl font-arabic text-white drop-shadow-lg">
-              {t('quality_title')}
-            </h2>
-            <p className="text-lg md:text-xl text-white/40 font-light leading-relaxed">
-              {t('quality_desc')}
-            </p>
+            <h2 className="text-4xl md:text-7xl font-arabic text-white drop-shadow-lg">{t('quality_title')}</h2>
+            <p className="text-lg md:text-xl text-white/40 font-light leading-relaxed">{t('quality_desc')}</p>
           </motion.div>
 
-          {/* Phase 3: Brand Promise */}
-          <motion.div 
-            style={{ opacity: feature2Opacity, y: feature2Y }}
-            className="absolute flex flex-col items-center gap-8 px-6 text-center"
-          >
+          <motion.div style={{ opacity: feature2Opacity, y: feature2Y }} className="absolute flex flex-col items-center gap-8 px-6 text-center">
             <div className="w-px h-24 bg-gradient-to-b from-transparent via-gold to-transparent" />
-            <h2 className="text-5xl md:text-8xl font-arabic gold-text-gradient">
-              {t('luxury_collection')}
-            </h2>
+            <h2 className="text-5xl md:text-8xl font-arabic gold-text-gradient">{t('luxury_collection')}</h2>
             <div className="flex gap-4">
                <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
                <div className="w-2 h-2 rounded-full bg-gold/50 animate-pulse delay-75" />
@@ -188,22 +163,14 @@ const HeroCanvas = () => {
             </div>
           </motion.div>
           
-          {/* Constant Progress Indicator */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-             <motion.div 
-               style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
-               className="flex flex-col items-center gap-4 animate-bounce"
-             >
+             <motion.div style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }} className="flex flex-col items-center gap-4 animate-bounce">
                 <span className="text-[10px] tracking-[0.5em] uppercase font-black text-gold/50">{t('scroll_explore')}</span>
                 <div className="w-px h-12 bg-gradient-to-b from-gold to-transparent" />
              </motion.div>
              
-             {/* Progress Bar */}
              <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-gold"
-                  style={{ scaleX: scrollYProgress, originX: 0 }}
-                />
+                <motion.div className="h-full bg-gold" style={{ scaleX: scrollYProgress, originX: 0 }} />
              </div>
           </div>
         </div>
@@ -213,4 +180,3 @@ const HeroCanvas = () => {
 }
 
 export default HeroCanvas
-

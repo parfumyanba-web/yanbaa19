@@ -1,12 +1,30 @@
 -- ==============================================================================
--- FINAL UNIFIED SETUP: ADMIN (admin@gmail.com / 123456) & AUTH FIX
+-- FINAL UNIFIED SETUP & EMAIL CONFIRMATION BYPASS
 -- ==============================================================================
 
 -- 1. Ensure profiles table defaults to is_active = TRUE
 ALTER TABLE public.profiles ALTER COLUMN is_active SET DEFAULT TRUE;
 UPDATE public.profiles SET is_active = TRUE;
 
--- 2. Create the Specific Admin User requested
+-- 2. Bypass "Email Not Confirmed" by auto-confirming ALL existing unconfirmed users
+UPDATE auth.users SET email_confirmed_at = NOW() WHERE email_confirmed_at IS NULL;
+
+-- 3. Create a TRIGGER to ALWAYS auto-confirm every future user (so phone auth never fails)
+CREATE OR REPLACE FUNCTION public.auto_confirm_user_email()
+RETURNS trigger AS $$
+BEGIN
+  -- Auto confirm email immediately for all platforms
+  NEW.email_confirmed_at := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created_confirm_email ON auth.users;
+CREATE TRIGGER on_auth_user_created_confirm_email
+  BEFORE INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.auto_confirm_user_email();
+
+-- 4. Create the Specific Admin User requested
 -- Email: admin@gmail.com
 -- Pass: 123456
 INSERT INTO auth.users (
@@ -43,7 +61,7 @@ SELECT
 WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'admin@gmail.com')
 RETURNING id;
 
--- 3. Ensure Profile exists with 'admin' role & NOT NULL fields
+-- 5. Ensure Profile exists with 'admin' role & NOT NULL fields
 INSERT INTO public.profiles (id, full_name, phone, store_name, address, wilaya, commune, role, is_active)
 SELECT 
   id, 
@@ -63,11 +81,4 @@ ON CONFLICT (id) DO UPDATE SET
   store_name = 'Yanba Main Office',
   full_name = 'Site Administrator';
 
--- 4. Set is_active = TRUE for ALL users (Removing Approval logic)
-UPDATE public.profiles SET is_active = TRUE;
-
--- 5. Final verification of policies
-DROP POLICY IF EXISTS "Public profiles are viewable by anyone." ON public.profiles;
-CREATE POLICY "Public profiles are viewable by anyone." ON public.profiles FOR SELECT USING (true);
-
--- SUCCESS: Admin created (admin@gmail.com / 123456) and all users activated.
+-- SUCCESS: Admin created (admin@gmail.com / 123456) and ALL users are now activated/confirmed instantly.
