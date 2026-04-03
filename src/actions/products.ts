@@ -10,8 +10,8 @@ export async function createProduct(formData: FormData) {
   const description = formData.get('description') as string
   const price_dzd = parseFloat(formData.get('price_dzd') as string)
   const image_url = formData.get('image_url') as string
-  const brand_id = formData.get('brand_id') ? parseInt(formData.get('brand_id') as string) : null
-  const categoryIds = formData.getAll('category_ids').map(id => parseInt(id as string))
+  const brand_id = formData.get('brand_id') as string || null
+  const categoryIds = formData.getAll('category_ids') as string[]
   const tags = formData.get('tags') ? (formData.get('tags') as string).split(',').map(t => t.trim()) : []
 
   const { data: product, error: productError } = await supabase
@@ -37,13 +37,32 @@ export async function createProduct(formData: FormData) {
     await supabase.from('product_categories').insert(categoryInserts)
   }
 
-  // Insert tags
+  // Insert tags (lookup or create)
   if (tags.length > 0) {
-    const tagInserts = tags.map(tag => ({
-      product_id: product.id,
-      tag
-    }))
-    await supabase.from('product_tags').insert(tagInserts)
+    for (const tagName of tags) {
+      // Get or create tag
+      let { data: tag } = await supabase
+        .from('tags')
+        .select('id')
+        .eq('name', tagName)
+        .single()
+      
+      if (!tag) {
+        const { data: newTag } = await supabase
+          .from('tags')
+          .insert({ name: tagName })
+          .select('id')
+          .single()
+        tag = newTag
+      }
+
+      if (tag) {
+        await supabase.from('product_tags').insert({
+          product_id: product.id,
+          tag_id: tag.id
+        })
+      }
+    }
   }
 
   // Initialize inventory
@@ -56,14 +75,14 @@ export async function createProduct(formData: FormData) {
   return { success: true, product }
 }
 
-export async function updateProduct(id: number, formData: FormData) {
+export async function updateProduct(id: string, formData: FormData) {
   const supabase = await createClient()
   
   const name = formData.get('name') as string
   const description = formData.get('description') as string
   const price_dzd = parseFloat(formData.get('price_dzd') as string)
   const image_url = formData.get('image_url') as string
-  const brand_id = formData.get('brand_id') ? parseInt(formData.get('brand_id') as string) : null
+  const brand_id = formData.get('brand_id') as string || null
 
   const { error } = await supabase
     .from('products')
@@ -82,7 +101,7 @@ export async function updateProduct(id: number, formData: FormData) {
   return { success: true }
 }
 
-export async function deleteProduct(id: number) {
+export async function deleteProduct(id: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('products').delete().eq('id', id)
 
@@ -96,7 +115,7 @@ export async function getProducts() {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('products')
-    .select('*, brands(name), product_categories(category_id, categories(name)), product_tags(tag)')
+    .select('*, brands(name), product_categories(categories(name)), product_tags(tags(name))')
     .order('created_at', { ascending: false })
 
   if (error) {

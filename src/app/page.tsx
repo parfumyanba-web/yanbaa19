@@ -12,13 +12,21 @@ import ProductCard from '@/components/store/ProductCard'
 export default function Home() {
   const { t } = useLanguage()
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [newArrivals, setNewArrivals] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function loadFeatured() {
-      const p = await getProductsClient()
-      setFeaturedProducts(p.slice(0, 4)) // Show first 4
+    async function loadData() {
+      setLoading(true)
+      const [featured, newest] = await Promise.all([
+        getProductsClient({ limit: 4 }),
+        getProductsClient({ tag: 'جديد', limit: 4 })
+      ])
+      setFeaturedProducts(featured)
+      setNewArrivals(newest.length > 0 ? newest : featured.slice(0, 4))
+      setLoading(false)
     }
-    loadFeatured()
+    loadData()
   }, [])
   
   return (
@@ -35,8 +43,29 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-            {featuredProducts.length > 0 ? (
+            {!loading && featuredProducts.length > 0 ? (
               featuredProducts.map((p) => <ProductCard key={p.id} product={p} />)
+            ) : (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="aspect-[3/4] glass-card animate-pulse bg-white/5 rounded-3xl" />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* New Arrivals Section */}
+      <section className="relative z-10 py-32 px-6 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+            <div className="space-y-2">
+               <span className="text-gold text-xs uppercase tracking-[0.3em] font-bold">New Arrivals</span>
+               <h2 className="text-4xl md:text-5xl font-arabic text-white">العطور الجديدة</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {!loading && newArrivals.length > 0 ? (
+              newArrivals.map((p) => <ProductCard key={p.id} product={p} />)
             ) : (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="aspect-[3/4] glass-card animate-pulse bg-white/5 rounded-3xl" />

@@ -1,31 +1,42 @@
 import { createClient } from '@/lib/supabase/server'
 
 export interface Brand {
-  id: number
+  id: string
   name: string
   image_url?: string
 }
 
 export interface Product {
-  id: number
+  id: string
   name: string
   description: string
   price_dzd: number
   image_url: string
-  brand_id?: number
+  brand_id?: string
   brands?: { name: string }
-  product_tags?: { tag: string }[]
+  product_tags?: { tags: { name: string } }[]
 }
 
-export async function getProducts(filters?: { categoryId?: number; brandId?: number }) {
+export interface ProductFilters {
+  categoryId?: string
+  brandId?: string
+  tag?: string
+  limit?: number
+}
+
+export async function getProducts(filters?: ProductFilters) {
   const supabase = await createClient()
   
   let query = supabase
     .from('products')
-    .select('*, brands(name), product_tags(tag)')
+    .select('*, brands(name), product_tags(tags(name))')
 
   if (filters?.brandId) {
     query = query.eq('brand_id', filters.brandId)
+  }
+
+  if (filters?.limit) {
+    query = query.limit(filters.limit)
   }
 
   const { data, error } = await query
@@ -35,7 +46,16 @@ export async function getProducts(filters?: { categoryId?: number; brandId?: num
     return []
   }
 
-  return data as Product[]
+  let results = data as any[]
+  
+  // Transform or filter by tag if needed
+  if (filters?.tag) {
+    results = results.filter(p => 
+      p.product_tags?.some((pt: any) => pt.tags?.name === filters.tag)
+    )
+  }
+
+  return results as Product[]
 }
 
 export async function getBrands() {

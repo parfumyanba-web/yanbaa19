@@ -11,6 +11,22 @@ async function run() {
     await client.connect();
     console.log("Connected to DB");
 
+    // CRITICAL: Drop existing tables to fix BIGINT vs UUID mismatch
+    console.log("Cleaning up existing tables for schema upgrade...");
+    await client.query(`
+        DROP TABLE IF EXISTS public.order_items CASCADE;
+        DROP TABLE IF EXISTS public.orders CASCADE;
+        DROP TABLE IF EXISTS public.inventory CASCADE;
+        DROP TABLE IF EXISTS public.product_categories CASCADE;
+        DROP TABLE IF EXISTS public.product_tags CASCADE;
+        DROP TABLE IF EXISTS public.product_collections CASCADE;
+        DROP TABLE IF EXISTS public.products CASCADE;
+        DROP TABLE IF EXISTS public.brands CASCADE;
+        DROP TABLE IF EXISTS public.categories CASCADE;
+        DROP TABLE IF EXISTS public.tags CASCADE;
+        DROP TABLE IF EXISTS public.collections CASCADE;
+    `);
+
     const schemaSql = fs.readFileSync(path.join(__dirname, '../supabase_schema.sql'), 'utf-8');
     const safeSchemaSql = schemaSql.replace(/ALTER PUBLICATION supabase_realtime ADD TABLE.*;/g, '-- ALTER PUBLICATION removed');
     await client.query(safeSchemaSql);

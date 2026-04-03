@@ -11,10 +11,15 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   // Resolve image URL
   const resolveImage = (url?: string) => {
-    if (!url) return '/placeholder-perfume.jpg'
-    if (url.startsWith('http') || url.startsWith('/')) return url
-    // If it's just a filename, assume it's in the Supabase 'products' bucket
-    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/products/${url}`
+    if (!url || url.trim() === '') return 'https://images.unsplash.com/photo-1541643600914-7836d3969197?auto=format&fit=crop&q=80&w=800' // High quality fallback
+    if (url.startsWith('http')) return url
+    if (url.startsWith('/')) return url
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (!supabaseUrl) return url
+    
+    // If it's just a filename, it's in the Supabase 'products' bucket
+    return `${supabaseUrl}/storage/v1/object/public/products/${url}`
   }
 
   const imageUrl = resolveImage(product.image_url)
@@ -53,7 +58,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           <div className="absolute top-4 right-4 flex flex-col gap-2 pointer-events-none">
             {product.product_tags.map((pt, i) => (
               <span key={i} className="bg-black/50 backdrop-blur-md border border-white/10 text-white/80 text-[10px] uppercase px-3 py-1 rounded-full font-arabic">
-                {pt.tag}
+                {pt.tags?.name}
               </span>
             ))}
           </div>

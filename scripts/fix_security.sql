@@ -47,6 +47,9 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public profiles are viewable by anyone." ON public.profiles;
 DROP POLICY IF EXISTS "Users can update their own profile." ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
+DROP POLICY IF EXISTS "Profiles are viewable by owners or admins" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles are updatable by owners or admins" ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 
 -- SELECT: Users can see their own profile, Admins can see all
 CREATE POLICY "Profiles are viewable by owners or admins"
