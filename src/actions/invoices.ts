@@ -53,6 +53,15 @@ export async function generateInvoice(orderId: string) {
 
   if (invoiceError) return { error: invoiceError.message }
 
+    // 5. Create Notification
+    await supabase.from('notifications').insert({
+      user_id: order.user_id,
+      type: 'invoice_new',
+      title: 'New Invoice / فاتورة جديدة',
+      message: `A new invoice has been generated for order #${orderId.slice(0,8)}`,
+      link: '/dashboard'
+    })
+
   revalidatePath('/admin')
   revalidatePath('/dashboard')
   

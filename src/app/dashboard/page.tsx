@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ShoppingBag, ChevronRight, Package, Loader2, ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import Link from 'next/link'
 import InvoiceView from '@/components/invoice/InvoiceView'
+import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 
 const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, recentOrders }: any) => {
   const { t, direction } = useLanguage()
@@ -28,14 +29,18 @@ const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, recentOr
           }} 
         />
       )}
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
+        <div className="flex-1">
            <h1 className="text-3xl font-bold font-arabic gold-text-gradient">{t('welcome_back')}, {profile?.full_name}</h1>
            <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mt-1 opacity-50">{t('partner_portal_overview')}</p>
         </div>
-        <div className="text-right flex flex-col items-end">
-           <p className="text-gold font-bold">{profile?.store_name}</p>
-           <p className="text-[10px] text-white/30 uppercase">{profile?.wilaya}, {profile?.commune}</p>
+        
+        <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="text-right flex flex-col items-end">
+             <p className="text-gold font-bold">{profile?.store_name}</p>
+             <p className="text-[10px] text-white/30 uppercase">{profile?.wilaya}, {profile?.commune}</p>
+          </div>
+          <NotificationCenter userId={profile?.id} />
         </div>
       </header>
 

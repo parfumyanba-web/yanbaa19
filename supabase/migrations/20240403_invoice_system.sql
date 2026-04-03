@@ -16,6 +16,14 @@ CREATE TABLE IF NOT EXISTS public.invoices (
     UNIQUE(order_id)
 );
 
+-- Ensure user_id exists if table was created without it
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='invoices' AND column_name='user_id') THEN
+        ALTER TABLE public.invoices ADD COLUMN user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE;
+    END IF;
+END $$;
+
 -- 2. Enable RLS
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 

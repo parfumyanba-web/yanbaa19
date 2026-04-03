@@ -61,12 +61,24 @@ export async function createOrder(items: CartItem[], shippingInfo: {
 export async function updateOrderStatus(orderId: string, status: string) {
   const supabase = await createClient()
   
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('orders')
     .update({ status })
     .eq('id', orderId)
+    .select('user_id')
+    .single()
 
   if (error) return { error: error.message }
+
+  // Create Notification for Client
+  if (data?.user_id) {
+    await supabase.from('notifications').insert({
+      user_id: data.user_id,
+      type: 'order_status',
+      title: 'Order Update / تحديث الطلب',
+      message: `Your order #${orderId.slice(0,8)} is now ${status} / طلبك الآن ${status}`,
+    })
+  }
   
   revalidatePath('/admin')
   revalidatePath('/dashboard')
@@ -76,12 +88,24 @@ export async function updateOrderStatus(orderId: string, status: string) {
 export async function updateOrderPayment(orderId: string, paidAmount: number) {
   const supabase = await createClient()
   
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('orders')
     .update({ paid_amount: paidAmount })
     .eq('id', orderId)
+    .select('user_id')
+    .single()
 
   if (error) return { error: error.message }
+
+  // Create Notification for Client
+  if (data?.user_id) {
+    await supabase.from('notifications').insert({
+      user_id: data.user_id,
+      type: 'payment_update',
+      title: 'Payment Received / تم استلام الدفع',
+      message: `We received a payment for order #${orderId.slice(0,8)}. New total: ${paidAmount} DZD`,
+    })
+  }
   
   revalidatePath('/admin')
   revalidatePath('/dashboard')

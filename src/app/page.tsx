@@ -18,12 +18,12 @@ export default function Home() {
   useEffect(() => {
     async function loadData() {
       setLoading(true)
-      const [featured, newest] = await Promise.all([
-        getProductsClient({ limit: 4 }),
+      const [bestsellers, newest] = await Promise.all([
+        getProductsClient({ limit: 4 }), // Default featured/sellers
         getProductsClient({ tag: 'جديد', limit: 4 })
       ])
-      setFeaturedProducts(featured)
-      setNewArrivals(newest.length > 0 ? newest : featured.slice(0, 4))
+      setFeaturedProducts(bestsellers)
+      setNewArrivals(newest.length > 0 ? newest : bestsellers.slice(0, 4))
       setLoading(false)
     }
     loadData()
