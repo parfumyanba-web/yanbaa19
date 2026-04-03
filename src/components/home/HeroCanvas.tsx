@@ -39,20 +39,40 @@ const HeroCanvas = () => {
     let active = true
     
     const loadImages = async () => {
-      const promises = []
-      for (let i = 1; i <= totalFrames; i++) {
+      const total = totalFrames
+      const firstBatchSize = 30 // Load enough to see initial motion
+      
+      // Batch 1: Critical frames
+      const firstBatch = []
+      for (let i = 1; i <= firstBatchSize; i++) {
         const img = new Image()
         img.src = `/frames/ezgif-frame-${i.toString().padStart(3, '0')}.jpg`
-        promises.push(new Promise((resolve) => {
+        firstBatch.push(new Promise((resolve) => {
           img.onload = () => resolve(img)
-          img.onerror = () => resolve(null) // Continue even if one fails
+          img.onerror = () => resolve(null)
         }))
       }
       
-      const loaded = await Promise.all(promises)
+      const loadedFirst = await Promise.all(firstBatch)
       if (active) {
-        setImages(loaded.filter(Boolean) as HTMLImageElement[])
-        setIsLoading(false)
+        setImages(loadedFirst.filter(Boolean) as HTMLImageElement[])
+        setIsLoading(false) // Show hero NOW
+      }
+
+      // Batch 2: Background frames
+      const secondBatch = []
+      for (let i = firstBatchSize + 1; i <= total; i++) {
+        const img = new Image()
+        img.src = `/frames/ezgif-frame-${i.toString().padStart(3, '0')}.jpg`
+        secondBatch.push(new Promise((resolve) => {
+          img.onload = () => resolve(img)
+          img.onerror = () => resolve(null)
+        }))
+      }
+
+      const loadedAll = await Promise.all(secondBatch)
+      if (active) {
+        setImages(prev => [...prev, ...loadedAll.filter(Boolean) as HTMLImageElement[]])
       }
     }
 

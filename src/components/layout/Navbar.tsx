@@ -55,8 +55,15 @@ const Navbar = () => {
                 {t('store')}
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-gold transition-all group-hover:w-full" />
               </Link>
+              
+              {/* Dedicated Admin Portal Link */}
+              <Link href="/admin/login" className="flex items-center gap-2 px-5 py-2.5 bg-gold/10 border border-gold/30 rounded-xl text-gold text-[11px] font-black tracking-widest hover:bg-gold hover:text-black transition-all duration-500 shadow-lg shadow-gold/5 group">
+                <div className="w-1.5 h-1.5 bg-gold rounded-full group-hover:bg-black group-hover:scale-125 transition-all" />
+                ADMIN PORTAL
+              </Link>
+
               {isAdminUser && (
-                <Link href="/admin" className="text-gold font-bold flex items-center gap-3 px-6 py-3 border border-gold/20 rounded-2xl bg-gold/5 hover:bg-gold hover:text-black transition-all duration-500 group shadow-[0_0_20px_rgba(212,175,55,0.1)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+                <Link href="/admin" className="text-white font-bold flex items-center gap-3 px-6 py-3 border border-white/20 rounded-2xl bg-white/5 hover:bg-gold hover:text-black transition-all duration-500 group shadow-xl">
                   <div className="w-2 h-2 bg-gold rounded-full group-hover:bg-black animate-pulse" />
                   <span className="tracking-[0.2em]">{t('admin_dashboard')}</span>
                 </Link>

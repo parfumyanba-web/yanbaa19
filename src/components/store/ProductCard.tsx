@@ -37,7 +37,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   }
 
   return (
-    <Link href={`/product/${product.id}`} className="block group">
+    <Link href={`/products/${product.id}`} className="block group">
       <div className="group glass-card overflow-hidden transition-all duration-700 hover:border-gold/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] rounded-3xl border border-white/5 bg-white/[0.02]">
         <div className="aspect-[3/4] relative bg-neutral-900 overflow-hidden">
           <Image
