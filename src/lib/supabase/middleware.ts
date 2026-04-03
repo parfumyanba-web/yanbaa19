@@ -73,7 +73,6 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url))
       }
     }
-  }
 
   // 2. Handle Client Dashboard Protection
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
