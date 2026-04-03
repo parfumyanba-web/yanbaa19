@@ -47,7 +47,8 @@ const translations: Record<Language, Record<string, string>> = {
     luxury_collection: 'تشكيلتنا الفاخرة',
     store_subtitle: 'أرقى العطور والزيوت الأصلية لتجارة الجملة في الجزائر',
     filter_all: 'كل المنتجات',
-    add_to_cart: 'إضافة للسلة',
+    add_to_cart: 'إضافة إلى السلة',
+    select_weight: 'اختر الكمية / الوزن',
     price_dzd: 'د.ج',
     empty_store: 'لا توجد منتجات حالياً',
     

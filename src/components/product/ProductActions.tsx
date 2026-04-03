@@ -37,7 +37,7 @@ const ProductActions = ({ product, resolveImage }: ProductActionsProps) => {
       {/* Selectors */}
       <div className="space-y-8">
         <div className="space-y-4">
-          <span className="text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">Select Quantity</span>
+          <span className="text-[10px] text-gold uppercase tracking-[0.3em] font-black">{t('select_weight')}</span>
           <div className="flex flex-wrap gap-3">
             {sizes.map((size) => (
               <button
