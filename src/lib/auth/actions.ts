@@ -51,6 +51,58 @@ export async function adminSignIn(formData: FormData) {
   redirect('/admin')
 }
 
+export async function adminSignUp(formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const fullName = formData.get('full_name') as string
+  const token = formData.get('token') as string
+
+  // 1. Validate Secret Token
+  if (token !== process.env.ADMIN_REGISTRATION_TOKEN) {
+    return { error: 'Invalid security token. Administrator registration denied.' }
+  }
+
+  const supabase = await createClient()
+
+  // 2. Sign up with Metadata & App Metadata (Role)
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        role: 'admin',
+        phone: 'ADMIN', // Placeholder for profiles table
+        store_name: 'Yanba Admin',
+        address: 'HQ',
+        wilaya: 'Alger',
+        commune: 'Alger'
+      }
+    }
+  })
+
+  if (error) return { error: error.message }
+
+  // 3. Force update role in profiles table (since trigger might not handle it)
+  if (data.user) {
+    await supabase
+      .from('profiles')
+      .update({ role: 'admin', is_active: true })
+      .eq('id', data.user.id)
+  }
+
+  // 4. Auto-sign in
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  if (signInError) return { success: true, message: 'Admin account created. Please log in.' }
+
+  revalidatePath('/', 'layout')
+  redirect('/admin')
+}
+
 export async function signUp(formData: FormData) {
   const phone = formData.get('phone') as string
   const password = formData.get('password') as string
@@ -75,20 +127,20 @@ export async function signUp(formData: FormData) {
         wilaya: wilaya,
         commune: commune,
         address: address,
+        role: 'client'
       }
     }
   })
 
   if (error) return { error: error.message }
 
-  // 2. Automatically sign in after sign up to remove "waiting for approval" barrier
+  // 2. Automatically sign in
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email,
     password
   })
 
   if (signInError) {
-    // If auto-signin fails for some reason, we still count sign up as success but don't redirect yet
     return { success: true, message: 'Account created, please log in.' }
   }
 

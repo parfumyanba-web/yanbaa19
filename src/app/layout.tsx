@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Alexandria } from "next/font/google";
+import { Outfit, Alexandria, Playfair_Display, Montserrat } from "next/font/google";
 import { LanguageProvider } from "@/context/LanguageContext";
 import "./globals.css";
 
@@ -18,6 +18,18 @@ const alexandria = Alexandria({
   display: "swap",
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: 'Yanba B2B | Parfumerie de Luxe',
   description: 'Digital B2B Platform for Yanba Perfumes Algeria',
@@ -29,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${alexandria.variable} ${outfit.variable}`}>
+    <html lang="ar" dir="rtl" className={`${alexandria.variable} ${outfit.variable} ${playfair.variable} ${montserrat.variable}`}>
       <body className="bg-[#121212] overflow-x-hidden selection:bg-gold selection:text-black">
         <LanguageProvider>
           <ToastProvider>

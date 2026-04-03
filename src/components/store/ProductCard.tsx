@@ -46,15 +46,15 @@ const ProductCard = ({ product }: { product: Product }) => {
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex items-end p-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-700 flex items-end p-4 md:p-6">
             <button 
               onClick={(e) => {
                 e.preventDefault()
                 handleAddToCart()
               }}
-              className="w-full gold-gradient py-4 rounded-2xl text-black font-bold flex items-center justify-center gap-3 transform translate-y-8 group-hover:translate-y-0 transition-all duration-700 shadow-2xl hover:scale-[1.02] active:scale-95"
+              className="w-full gold-gradient py-3 md:py-4 rounded-xl md:rounded-2xl text-black text-xs md:text-sm font-bold flex items-center justify-center gap-3 transform translate-y-0 md:translate-y-8 md:group-hover:translate-y-0 transition-all duration-700 shadow-2xl hover:scale-[1.02] active:scale-95"
             >
-              <Plus size={20} /> {t('add_to_cart')}
+              <Plus size={18} /> {t('add_to_cart')}
             </button>
           </div>
           
@@ -70,25 +70,25 @@ const ProductCard = ({ product }: { product: Product }) => {
           )}
         </div>
         
-        <div className="p-8 space-y-4">
+        <div className="p-5 md:p-8 space-y-4">
           <div className="flex flex-col gap-1">
-            <h3 className="text-xl font-arabic font-medium text-white/90 group-hover:text-gold transition-colors line-clamp-1">
+            <h3 className="text-lg md:text-xl font-arabic font-medium text-white/90 group-hover:text-gold transition-colors line-clamp-1">
               {product.name}
             </h3>
-            <p className="text-white/30 text-[10px] uppercase tracking-[0.2em] font-medium">
+            <p className="text-white/30 text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium">
               {product.brands?.name || 'Yanba Special'}
             </p>
           </div>
           
           <div className="flex items-center justify-between pt-2 border-t border-white/5">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold bg-gradient-to-r from-gold via-white to-gold bg-clip-text text-transparent">
+              <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-gold via-white to-gold bg-clip-text text-transparent">
                 {product.price_dzd.toLocaleString()}
               </span>
-              <span className="text-[10px] text-gold/60 font-bold uppercase">{t('price_dzd')}</span>
+              <span className="text-[9px] md:text-[10px] text-gold/60 font-bold uppercase">{t('price_dzd')}</span>
             </div>
-            <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/20 group-hover:border-gold/50 group-hover:text-gold transition-all duration-500">
-               <ShoppingBag size={14} />
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white/10 flex items-center justify-center text-white/20 group-hover:border-gold/50 group-hover:text-gold transition-all duration-500">
+               <ShoppingBag size={12} className="md:w-[14px] md:h-[14px]" />
             </div>
           </div>
         </div>

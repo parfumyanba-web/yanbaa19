@@ -30,16 +30,16 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
       />
 
       {/* Drawer */}
-      <div className={`fixed top-0 bottom-0 right-0 w-full max-w-md bg-[#0a0a0a] border-l border-white/5 z-[101] shadow-2xl transition-transform duration-700 ease-out flex flex-col ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
+      <div className={`fixed top-0 bottom-0 ${direction === 'rtl' ? 'left-0 border-r' : 'right-0 border-l'} w-full sm:max-w-md bg-[#0a0a0a] border-white/5 z-[101] shadow-2xl transition-transform duration-700 ease-out flex flex-col ${
+        isOpen ? 'translate-x-0' : (direction === 'rtl' ? '-translate-x-full' : 'translate-x-full')
       }`}>
         {/* Header */}
-        <div className="p-8 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-md text-white">
+        <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-md text-white">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold">
-              <ShoppingBag size={20} />
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold">
+              <ShoppingBag size={18} className="md:w-[20px] md:h-[20px]" />
             </div>
-            <h2 className="text-xl font-bold font-arabic">{t('your_cart')}</h2>
+            <h2 className="text-lg md:text-xl font-bold font-arabic">{t('your_cart')}</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors text-white/40 hover:text-white">
             <X size={20} />
@@ -110,10 +110,10 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="p-8 border-t border-white/10 bg-black/40 backdrop-blur-xl space-y-6 text-white">
-            <div className="flex justify-between items-center text-white/40 uppercase tracking-widest text-xs">
+          <div className="p-6 md:p-8 border-t border-white/10 bg-black/40 backdrop-blur-xl space-y-4 md:space-y-6 text-white">
+            <div className="flex justify-between items-center text-white/40 uppercase tracking-widest text-[10px] md:text-xs">
               <span>{t('subtotal')}</span>
-              <span className="text-lg font-bold text-white tracking-widest">
+              <span className="text-base md:text-lg font-bold text-white tracking-widest">
                 {subtotal.toLocaleString()} {t('price_dzd')}
               </span>
             </div>
@@ -123,7 +123,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                 onClose()
                 router.push('/checkout')
               }}
-              className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 group text-sm font-bold tracking-[0.2em]"
+              className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl flex items-center justify-center gap-3 group text-xs md:text-sm font-bold tracking-[0.2em]"
             >
               {t('checkout')}
               <ArrowRight size={18} className={`group-hover:translate-x-1 transition-transform ${direction === 'rtl' ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />

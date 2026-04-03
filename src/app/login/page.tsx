@@ -13,12 +13,12 @@ const LoginPage = () => {
   }, null)
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-[#121212] p-6 font-alexandria">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-[#121212] p-4 md:p-6 font-alexandria">
       <Link 
         href="/" 
-        className="fixed top-8 left-8 flex items-center gap-2 text-white/40 hover:text-gold transition-colors text-sm uppercase tracking-widest group"
+        className="fixed top-6 md:top-8 left-6 md:left-8 rtl:left-auto rtl:right-6 rtl:md:right-8 flex items-center gap-2 text-white/40 hover:text-gold transition-colors text-xs md:text-sm uppercase tracking-widest group z-[100]"
       >
-        <span className="transform group-hover:-translate-x-1 transition-transform">←</span>
+        <span className="transform group-hover:-translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:translate-x-1">←</span>
         {t('back_to_home')}
       </Link>
       <div className="w-full max-w-md space-y-8 animate-fade-in">

@@ -29,16 +29,16 @@ const Footer = () => {
   }, [])
 
   return (
-    <footer className="bg-[#080808] border-t border-white/5 pt-24 pb-12 px-6 relative overflow-hidden">
+    <footer className="bg-[#080808] border-t border-white/5 pt-16 md:pt-24 pb-10 md:pb-12 px-6 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
       
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center space-y-16">
         {/* Brand Section */}
         <div className="space-y-6">
-          <Link href="/" className="text-5xl font-arabic gold-text-gradient block hover:scale-105 transition-transform duration-500">
+          <Link href="/" className="text-4xl md:text-5xl font-arabic gold-text-gradient block hover:scale-105 transition-transform duration-500">
             {t('hero_title')}
           </Link>
-          <p className="text-white/40 text-sm tracking-[0.2em] uppercase max-w-md mx-auto leading-relaxed font-light">
+          <p className="text-white/40 text-xs md:text-sm tracking-[0.2em] uppercase max-w-md mx-auto leading-relaxed font-light">
             {t('hero_subtitle')}
           </p>
         </div>
@@ -69,9 +69,9 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="w-full pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-white/20 text-[10px] uppercase tracking-[0.3em]">
+        <div className="w-full pt-12 md:pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 text-white/20 text-[9px] md:text-[10px] uppercase tracking-[0.3em]">
           <p>© {new Date().getFullYear()} {t('rights')}</p>
-          <div className="flex gap-10">
+          <div className="flex gap-6 md:gap-10">
             <Link href="/privacy" className="hover:text-gold transition-colors">{t('privacy_policy')}</Link>
             <Link href="/terms" className="hover:text-gold transition-colors">{t('terms_of_service')}</Link>
           </div>

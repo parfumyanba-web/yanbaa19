@@ -9,10 +9,10 @@ import { Product } from '@/types/catalog'
 
 interface ProductActionsProps {
   product: Product
-  resolveImage: (url?: string) => string
+  imageUrl: string
 }
 
-const ProductActions = ({ product, resolveImage }: ProductActionsProps) => {
+const ProductActions = ({ product, imageUrl }: ProductActionsProps) => {
   const { t } = useLanguage()
   const addItem = useCartStore((state) => state.addItem)
   
@@ -26,7 +26,7 @@ const ProductActions = ({ product, resolveImage }: ProductActionsProps) => {
       id: product.id.toString(),
       name: product.name,
       price: product.price_dzd,
-      image: resolveImage(product.image_url),
+      image: imageUrl,
       quantity_label: selectedSize,
       quantity_count: quantityCount
     })

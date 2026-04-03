@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer'
 import { getProductById } from '@/lib/services/catalog'
 import { Star, ArrowLeft } from 'lucide-react'
 import ProductActions from '@/components/product/ProductActions'
-import { createClient } from '@/lib/supabase/server'
+
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -108,7 +108,7 @@ const ProductDetailsPage = async ({ params }: PageProps) => {
 
             <div className="h-px bg-white/5" />
 
-            <ProductActions product={product} resolveImage={resolveImage} />
+            <ProductActions product={product} imageUrl={resolveImage(product.image_url)} />
           </div>
         </div>
       </div>
