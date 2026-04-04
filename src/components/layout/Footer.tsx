@@ -4,6 +4,10 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import { Phone, MessageCircle, MapPin, Mail } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
+let cachedStoreInfo: any = null
+let fetchPromise: Promise<any> | null = null
 
 const Footer = () => {
   const { t } = useLanguage()
@@ -12,18 +16,29 @@ const Footer = () => {
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('settings')
-        .select('*')
-        .eq('key', 'store_info')
-        .single()
-      
-      if (data?.value) {
-        setStoreInfo(data.value)
-        setWhatsappNumber(data.value.whatsapp || '')
+      if (cachedStoreInfo) {
+        setStoreInfo(cachedStoreInfo)
+        setWhatsappNumber(cachedStoreInfo.whatsapp || '')
+        return
       }
+      
+      if (!fetchPromise) {
+        fetchPromise = (async () => {
+          const supabase = createClient()
+          const { data } = await supabase
+            .from('settings')
+            .select('*')
+            .eq('key', 'store_info')
+            .single()
+          
+          cachedStoreInfo = data?.value || {}
+          return cachedStoreInfo
+        })()
+      }
+      
+      const info = await fetchPromise
+      setStoreInfo(info)
+      setWhatsappNumber(info.whatsapp || '')
     }
     fetchSettings()
   }, [])

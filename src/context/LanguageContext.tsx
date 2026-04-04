@@ -20,6 +20,14 @@ const translations: Record<Language, Record<string, string>> = {
     register: 'إنشاء حساب',
     cart: 'سلة المشتريات',
     admin_dashboard: 'لوحة التحكم',
+    admin_access: 'وصول الإدارة',
+    management_access: 'دخول الإدارة',
+    
+    // Mobile Menu Labels
+    collection_label: 'المجموعة',
+    portal_label: 'البوابة',
+    management_label: 'الإدارة',
+    dashboard: 'لوحة التحكم',
     
     // Auth
     welcome_back: 'مرحباً بك مجدداً',
@@ -107,6 +115,13 @@ const translations: Record<Language, Record<string, string>> = {
     continue_shopping: 'مواصلة التسوق',
     items_count: 'قطع',
     
+    // Dashboard - Sidebar
+    my_account: 'حسابي',
+    overview: 'نظرة عامة',
+    order_history: 'سجل الطلبات',
+    invoices_documents: 'الفواتير والمستندات',
+    settings: 'الإعدادات',
+    
     // Dashboard Components
     order_ref: 'رقم الطلب',
     order_status: 'حالة الطلب',
@@ -126,6 +141,31 @@ const translations: Record<Language, Record<string, string>> = {
     total_purchases: 'إجمالي المشتريات',
     in_process: 'قيد المعالجة',
     available: 'متاح',
+    no_order_history: 'لا يوجد سجل طلبات',
+    
+    // Orders Page
+    order_history_title: 'سجل الطلبات',
+    order_history_subtitle: 'تتبع شحناتك وحالة طلباتك',
+    order_reference: 'مرجع الطلب',
+    status: 'الحالة',
+    accounting: 'المحاسبة',
+    estimated_delivery: 'التسليم المتوقع: 2-3 أيام',
+    paid_label: 'المدفوع',
+    no_orders_yet: 'لم يتم تقديم أي طلبات بعد',
+    start_shopping: 'ابدأ التسوق',
+    
+    // Order statuses
+    pending: 'قيد الانتظار',
+    confirmed: 'مؤكد',
+    shipped: 'تم الشحن',
+    delivered: 'تم التسليم',
+    cancelled: 'ملغي',
+    
+    // Invoices Page
+    invoices_title: 'الفواتير والمستندات',
+    invoices_subtitle: 'تحميل وإدارة سجل الفواتير',
+    download_pdf: 'تحميل PDF',
+    vault_empty: 'لا توجد فواتير',
     
     // Invoices
     invoice_title: 'فاتورة',
@@ -141,6 +181,25 @@ const translations: Record<Language, Record<string, string>> = {
     download_invoice: 'تحميل الفاتورة',
     view_invoice: 'عرض الفاتورة',
     invoice_success: 'تم إنشاء الفاتورة بنجاح!',
+    invoice_label: 'فاتورة',
+    digital_audit_log: 'سجل التدقيق الرقمي',
+    thank_you_message: 'شكراً لثقتكم في ينبع للعطور',
+    products: 'المنتجات',
+    quantity: 'الكمية',
+    
+    // Settings Page
+    settings_subtitle: 'إدارة معلومات حسابك والأمان',
+    personal_information: 'المعلومات الشخصية',
+    phone_number: 'رقم الهاتف',
+    security_settings: 'إعدادات الأمان',
+    new_password: 'كلمة المرور الجديدة',
+    save_changes: 'حفظ التعديلات',
+    saving: 'جاري الحفظ...',
+    update_password: 'تحديث كلمة المرور',
+    updating: 'جاري التحديث...',
+    profile_updated: 'تم تحديث الملف الشخصي بنجاح!',
+    password_updated: 'تم تحديث كلمة المرور بنجاح!',
+    passwords_not_match: 'كلمات المرور غير متطابقة',
   },
   fr: {
     // Navbar
@@ -149,6 +208,14 @@ const translations: Record<Language, Record<string, string>> = {
     register: 'Inscription',
     cart: 'Votre Panier',
     admin_dashboard: 'Administration',
+    admin_access: 'Accès Admin',
+    management_access: 'Accès Gestion',
+    
+    // Mobile Menu Labels
+    collection_label: 'Collection',
+    portal_label: 'Portail',
+    management_label: 'Gestion',
+    dashboard: 'Tableau de bord',
     
     // Auth
     welcome_back: 'Ravi de vous revoir',
@@ -184,13 +251,14 @@ const translations: Record<Language, Record<string, string>> = {
     required: 'Ce champ est obligatoire',
     invalid_phone: 'Numéro invalide (05/06/07)',
     password_too_short: 'Mot de passe trop court (min 6)',
-    store_placeholder: 'Ex: Yanba Parfums Shop',
+    store_placeholder: 'Ex : Boutique Yanba Parfums',
     
     // Store
     luxury_collection: 'Collection Prestige',
     store_subtitle: 'Les plus grandes fragrances pour les grossistes en Algérie',
     filter_all: 'Tous les produits',
     add_to_cart: 'Ajouter au panier',
+    select_weight: 'Choisir la quantité / le poids',
     price_dzd: 'DZD',
     empty_store: 'Aucun produit disponible',
     
@@ -203,8 +271,19 @@ const translations: Record<Language, Record<string, string>> = {
     scroll_explore: 'Défiler pour explorer',
     new_arrivals: 'Nouveautés',
     
+    // Checkout
+    checkout_title: 'Paiement',
+    review_cart: 'Vérifier mon panier',
+    shipping_details: 'Détails de livraison',
+    order_summary: 'Résumé de commande',
+    place_order: 'Confirmer la commande',
+    order_success: 'Commande envoyée avec succès !',
+    order_success_desc: 'Nous vous contacterons bientôt pour confirmer l\'expédition.',
+    back_to_dashboard: 'Retour au tableau de bord',
+    empty_checkout: 'Votre panier est vide, impossible de commander.',
+
     // Footer & General
-    rights: 'Tous droits réservés - Yanba Parfums',
+    rights: 'Tous droits réservés — Yanba Parfums',
     location: 'Alger, Algérie',
     contact_us: 'Contactez-nous',
     privacy_policy: 'Politique de confidentialité',
@@ -223,6 +302,13 @@ const translations: Record<Language, Record<string, string>> = {
     checkout: 'Commander',
     continue_shopping: 'Continuer mes achats',
     items_count: 'articles',
+
+    // Dashboard - Sidebar
+    my_account: 'Mon Compte',
+    overview: 'Vue d\'ensemble',
+    order_history: 'Historique des commandes',
+    invoices_documents: 'Factures et documents',
+    settings: 'Paramètres',
 
     // Dashboard Components
     order_ref: 'Réf. Commande',
@@ -243,6 +329,31 @@ const translations: Record<Language, Record<string, string>> = {
     total_purchases: 'Total des Achats',
     in_process: 'En cours',
     available: 'Disponible',
+    no_order_history: 'Aucun historique de commandes',
+
+    // Orders Page
+    order_history_title: 'Historique des commandes',
+    order_history_subtitle: 'Suivez vos expéditions et l\'état de vos commandes',
+    order_reference: 'Référence commande',
+    status: 'État',
+    accounting: 'Comptabilité',
+    estimated_delivery: 'Livraison estimée : 2-3 jours',
+    paid_label: 'Payé',
+    no_orders_yet: 'Aucune commande passée',
+    start_shopping: 'Commencer vos achats',
+
+    // Order statuses
+    pending: 'En attente',
+    confirmed: 'Confirmée',
+    shipped: 'Expédiée',
+    delivered: 'Livrée',
+    cancelled: 'Annulée',
+    
+    // Invoices Page
+    invoices_title: 'Factures et Documents',
+    invoices_subtitle: 'Téléchargez et gérez votre historique de facturation',
+    download_pdf: 'Télécharger PDF',
+    vault_empty: 'Aucune facture',
 
     // Invoices
     invoice_title: 'Facture',
@@ -258,17 +369,25 @@ const translations: Record<Language, Record<string, string>> = {
     download_invoice: 'Télécharger la Facture',
     view_invoice: 'Voir la Facture',
     invoice_success: 'Facture générée avec succès !',
+    invoice_label: 'Facture',
+    digital_audit_log: 'Journal d\'audit numérique',
+    thank_you_message: 'Merci pour votre confiance en Yanba Parfums',
+    products: 'Produits',
+    quantity: 'Quantité',
 
-    // Checkout
-    checkout_title: 'Caisse',
-    review_cart: 'Vérifier mon panier',
-    shipping_details: 'Détails de livraison',
-    order_summary: 'Résumé de commande',
-    place_order: 'Confirmer la commande',
-    order_success: 'Commande envoyée avec succès !',
-    order_success_desc: 'Nous vous contacterons bientôt pour confirmer l\'expédition.',
-    back_to_dashboard: 'Retour au tableau de bord',
-    empty_checkout: 'Votre panier est vide, impossible de commander.',
+    // Settings Page
+    settings_subtitle: 'Gérez vos informations personnelles et votre sécurité',
+    personal_information: 'Informations Personnelles',
+    phone_number: 'Numéro de téléphone',
+    security_settings: 'Paramètres de Sécurité',
+    new_password: 'Nouveau mot de passe',
+    save_changes: 'Enregistrer les modifications',
+    saving: 'Enregistrement...',
+    update_password: 'Mettre à jour le mot de passe',
+    updating: 'Mise à jour...',
+    profile_updated: 'Profil mis à jour avec succès !',
+    password_updated: 'Mot de passe mis à jour avec succès !',
+    passwords_not_match: 'Les mots de passe ne correspondent pas',
   }
 }
 

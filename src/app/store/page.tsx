@@ -15,14 +15,14 @@ export default function StorePage() {
   const [loading, setLoading] = useState(true)
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
 
+  useEffect(() => {
+    getBrandsClient().then(setBrands)
+  }, [])
+
   const loadData = async (brandId: string | null = null) => {
     setLoading(true)
-    const [p, b] = await Promise.all([
-      getProductsClient(brandId ? { brandId } : undefined),
-      getBrandsClient()
-    ])
+    const p = await getProductsClient(brandId ? { brandId } : undefined)
     setProducts(p)
-    setBrands(b)
     setLoading(false)
   }
 

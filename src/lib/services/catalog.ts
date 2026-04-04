@@ -18,8 +18,6 @@ export async function getProducts(filters?: ProductFilters) {
     query = query.limit(filters.limit)
   }
 
-  const { data, error } = query as any
-  
   const { data: finalData, error: finalError } = await query
   
   if (finalError) {

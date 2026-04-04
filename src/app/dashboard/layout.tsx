@@ -1,10 +1,15 @@
+'use client'
+
 import React from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
 import { History, FileText, Settings, Layout } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useLanguage()
+
   return (
     <div className="min-h-screen bg-[#121212] flex flex-col">
       <Navbar />
@@ -12,11 +17,11 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-20 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Sidebar Nav */}
         <aside className="md:col-span-1 space-y-2">
-          <h2 className="text-gold text-xs font-bold uppercase tracking-widest mb-6 ml-4">My Account</h2>
-          <ClientNavItem href="/dashboard" icon={<Layout size={18} />} label="Overview" />
-          <ClientNavItem href="/dashboard/orders" icon={<History size={18} />} label="Order History" />
-          <ClientNavItem href="/dashboard/invoices" icon={<FileText size={18} />} label="Invoices" />
-          <ClientNavItem href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" />
+          <h2 className="text-gold text-xs font-bold uppercase tracking-widest mb-6 ml-4">{t('my_account')}</h2>
+          <ClientNavItem href="/dashboard" icon={<Layout size={18} />} label={t('overview')} />
+          <ClientNavItem href="/dashboard/orders" icon={<History size={18} />} label={t('order_history')} />
+          <ClientNavItem href="/dashboard/invoices" icon={<FileText size={18} />} label={t('invoices_documents')} />
+          <ClientNavItem href="/dashboard/settings" icon={<Settings size={18} />} label={t('settings')} />
         </aside>
 
         {/* Main Dashboard Content */}

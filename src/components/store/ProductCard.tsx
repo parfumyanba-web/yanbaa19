@@ -45,6 +45,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             alt={product.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-700 flex items-end p-4 md:p-6">
             <button 

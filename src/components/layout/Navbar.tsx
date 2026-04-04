@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, User, Menu, X, Languages, ArrowRight } from 'lucide-react'
+import { ShoppingBag, User, Menu, X, Languages, ArrowRight, LayoutDashboard, LogIn, ChevronRight } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import CartDrawer from '@/components/cart/CartDrawer'
 import { useLanguage } from '@/context/LanguageContext'
+import { createClient } from '@/lib/supabase/client'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -23,10 +24,10 @@ const Navbar = () => {
     }
     
     // Check if user is authenticated and if admin
+    const supabase = createClient()
     const checkUserStatus = async () => {
-       const { createClient } = await import('@/lib/supabase/client')
-       const supabase = createClient()
-       const { data: { user } } = await supabase.auth.getUser()
+       const { data: { session } } = await supabase.auth.getSession()
+       const user = session?.user
        if (user) {
          setIsAuthUser(true)
          // Check admin from JWT metadata (no DB query = fast + no RLS issues)
@@ -36,144 +37,185 @@ const Navbar = () => {
     }
 
     checkUserStatus()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      if (session?.user) {
+        setIsAuthUser(true)
+        setIsAdminUser(session.user.app_metadata?.role === 'admin' || session.user.user_metadata?.role === 'admin')
+      } else {
+        setIsAuthUser(false)
+        setIsAdminUser(false)
+      }
+    })
+
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      subscription.unsubscribe()
+    }
   }, [])
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => { document.body.style.overflow = 'unset' }
+  }, [isMobileMenuOpen])
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-700 ${
-        isScrolled ? 'py-4 md:py-5 bg-black/60 backdrop-blur-2xl border-b border-white/5 shadow-2xl' : 'py-6 md:py-10 bg-transparent'
+      <nav className={`fixed z-[60] transition-all duration-700 w-full flex justify-center pointer-events-none px-4 ${
+        isScrolled ? 'top-4 md:top-6' : 'top-0'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+        <div className={`pointer-events-auto w-full transition-all duration-700 flex items-center justify-between ${
+          isScrolled 
+            ? 'max-w-5xl bg-black/40 backdrop-blur-3xl border border-white/10 rounded-full py-3 px-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)]' 
+            : 'max-w-7xl bg-transparent py-6 md:py-8 px-4 md:px-8'
+        }`}>
           {/* Logo Section */}
-          <div className="flex items-center gap-6 md:gap-16">
-            <Link href="/" className="text-2xl md:text-4xl font-arabic gold-text-gradient font-bold tracking-tighter hover:scale-105 transition-transform shrink-0">
+          <div className="flex-1 shrink-0 flex items-center">
+            <Link href="/" className={`font-arabic gold-text-gradient font-bold tracking-tighter hover:scale-105 transition-transform ${isScrolled ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'}`}>
               ينبع
             </Link>
+          </div>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-10 text-[11px] font-bold tracking-[0.3em] uppercase text-white/50">
-              <Link href="/store" className="hover:text-white transition-all relative group py-2">
+          {/* Center Navigation Links (Desktop) */}
+          <div className="hidden lg:flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-white/[0.02] border border-white/5 backdrop-blur-sm">
+            <Link href="/store" className="group relative px-4 py-2 hover:bg-white/5 rounded-full transition-all">
+              <span className="text-[11px] font-bold tracking-[0.3em] uppercase text-white/60 group-hover:text-white transition-colors">
                 {t('store')}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-gold transition-all group-hover:w-full" />
-              </Link>
-              
-              {/* Refined Admin Access Point */}
-              <Link 
-                href="/admin-login" 
-                className="group flex items-center gap-3 px-4 py-2 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-full text-white/40 hover:text-gold hover:border-gold/30 hover:bg-gold/[0.02] transition-all duration-700 shadow-2xl"
-              >
-                <div className="w-1 h-1 bg-white/20 rounded-full group-hover:bg-gold group-hover:scale-150 group-hover:shadow-[0_0_10px_rgba(212,175,55,0.8)] transition-all duration-500" />
-                <span className="text-[9px] font-bold tracking-[0.4em] uppercase">Admin.Access</span>
-              </Link>
+              </span>
+              <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+            </Link>
+            
+            <Link 
+              href="/admin-login" 
+              className="group relative flex items-center gap-2 px-4 py-2 hover:bg-white/5 rounded-full transition-all"
+            >
+              <div className="w-1 h-1 bg-white/20 rounded-full group-hover:bg-gold group-hover:shadow-[0_0_8px_rgba(212,175,55,0.8)] transition-all duration-300" />
+              <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/50 group-hover:text-gold transition-colors">Portal</span>
+            </Link>
 
-              {isAdminUser && (
-                <Link href="/admin" className="text-white font-bold flex items-center gap-3 px-6 py-3 border border-white/20 rounded-2xl bg-white/5 hover:bg-gold hover:text-black transition-all duration-500 group shadow-xl">
-                  <div className="w-2 h-2 bg-gold rounded-full group-hover:bg-black animate-pulse" />
-                  <span className="tracking-[0.2em]">{t('admin_dashboard')}</span>
-                </Link>
-              )}
-            </div>
+            {isAdminUser && (
+              <Link href="/admin" className="group relative flex items-center gap-2 px-4 py-2 hover:bg-gold/10 border border-transparent hover:border-gold/20 rounded-full transition-all">
+                <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse shadow-[0_0_8px_rgba(212,175,55,0.6)]" />
+                <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold">Admin</span>
+              </Link>
+            )}
           </div>
 
           {/* Action Icons Section */}
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex-1 flex justify-end items-center gap-2 md:gap-3">
             <button 
               onClick={() => setLanguage(language === 'ar' ? 'fr' : 'ar')}
-              className="text-white/40 hover:text-gold transition-all px-2 md:px-4 py-2 md:py-2.5 border border-white/5 rounded-xl hover:bg-white/5 flex items-center gap-2 md:gap-3 text-[10px] font-black uppercase tracking-[0.2em]"
+              className="group hidden sm:flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-full hover:bg-white/5 border border-transparent hover:border-white/10 transition-all text-[10px] font-bold tracking-[0.2em] text-white/50 hover:text-white"
             >
-              <Languages size={14} className="opacity-50" />
-              <span className="hidden sm:inline">{language === 'ar' ? 'FRANÇAIS' : 'عربي'}</span>
-              <span className="sm:hidden">{language === 'ar' ? 'FR' : 'ع'}</span>
+              <Languages size={14} className="opacity-70 group-hover:text-gold transition-colors" />
+              <span>{language === 'ar' ? 'FR' : 'عربي'}</span>
             </button>
             
-            <div className="hidden xs:block h-6 w-px bg-white/10 mx-1 md:mx-2" />
-
-            <Link href={isAuthUser ? "/dashboard" : "/login"} className="text-white/40 hover:text-gold transition-all p-2.5 md:p-3.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5">
-              <User size={20} strokeWidth={1.5} className={`md:w-[22px] md:h-[22px] ${isAuthUser ? "text-gold" : ""}`} />
+            <Link href={isAuthUser ? "/dashboard" : "/login"} className="text-white/50 hover:text-gold transition-all p-2.5 hover:bg-white/5 rounded-full border border-transparent hover:border-white/10 group">
+              <User size={18} strokeWidth={1.5} className="group-hover:scale-110 transition-transform" />
             </Link>
             
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="relative text-white/40 hover:text-gold transition-all p-2.5 md:p-3.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5 group"
+              className="relative text-white/50 hover:text-gold transition-all p-2.5 hover:bg-white/5 rounded-full border border-transparent hover:border-white/10 group"
             >
-              <ShoppingBag size={20} strokeWidth={1.5} className="md:w-[22px] md:h-[22px]" />
+              <ShoppingBag size={18} strokeWidth={1.5} className="group-hover:scale-110 transition-transform" />
               {totalItems > 0 && (
-                <span className="absolute top-1 right-1 bg-gold text-black text-[9px] font-black w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform">
+                 <span className="absolute -top-1 -right-1 bg-gradient-to-tr from-gold to-yellow-200 text-black text-[9px] font-black w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(212,175,55,0.5)] group-hover:scale-110 transition-transform border border-black/20">
                   {totalItems}
                 </span>
               )}
             </button>
 
+            <div className="h-6 w-px bg-white/10 mx-1 lg:hidden" />
+
             <button 
-              className="md:hidden text-white/40 p-2.5 hover:bg-white/5 rounded-xl border border-white/5 ml-1"
+              className={`lg:hidden relative p-2.5 rounded-full transition-all duration-300 border ${
+                isMobileMenuOpen ? 'bg-white/10 border-white/20 text-white' : 'hover:bg-white/5 border-transparent text-white/50'
+              }`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              <div className="relative w-5 h-5 flex items-center justify-center">
+                <span className={`absolute h-px w-5 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
+                <span className={`absolute h-px bg-current transition-all duration-300 ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-5 opacity-100'}`} />
+                <span className={`absolute h-px w-5 bg-current transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
+              </div>
             </button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 h-[calc(100vh-100%)] bg-black/95 backdrop-blur-2xl border-t border-white/10 p-6 flex flex-col md:hidden animate-fade-in shadow-2xl overflow-y-auto">
-            <div className="flex flex-col gap-4">
-              <Link href="/store" className="group p-6 glass-card border-white/5 hover:border-gold/30 transition-all" onClick={() => setIsMobileMenuOpen(false)}>
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-gold font-bold tracking-widest uppercase opacity-50">Collection</span>
-                    <h3 className="text-2xl font-arabic text-white group-hover:text-gold transition-colors">{t('store')}</h3>
-                  </div>
-                  <ArrowRight size={24} className={`opacity-20 group-hover:opacity-100 group-hover:translate-x-2 transition-all ${language === 'ar' ? 'rotate-180 group-hover:-translate-x-2' : ''}`} />
-                </div>
-              </Link>
-
-              <Link href={isAuthUser ? "/dashboard" : "/login"} className="group p-6 glass-card border-white/5 hover:border-gold/30 transition-all" onClick={() => setIsMobileMenuOpen(false)}>
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-gold font-bold tracking-widest uppercase opacity-50">Portal</span>
-                    <h3 className="text-2xl font-arabic text-white group-hover:text-gold transition-colors">{isAuthUser ? "Dashboard" : "Login"}</h3>
-                  </div>
-                  <ArrowRight size={24} className={`opacity-20 group-hover:opacity-100 group-hover:translate-x-2 transition-all ${language === 'ar' ? 'rotate-180 group-hover:-translate-x-2' : ''}`} />
-                </div>
-              </Link>
-
-              {isAdminUser && (
-                <Link href="/admin" className="group p-6 bg-gold/5 border border-gold/20 rounded-3xl hover:bg-gold/10 transition-all" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-gold font-bold tracking-widest uppercase">Management</span>
-                      <h3 className="text-2xl font-arabic text-gold">{t('admin_dashboard')}</h3>
-                    </div>
-                    <div className="w-3 h-3 bg-gold rounded-full animate-pulse shadow-[0_0_15px_rgba(212,175,55,0.6)]" />
-                  </div>
-                </Link>
-              )}
-              
-              <Link 
-                href="/admin-login" 
-                className="flex items-center justify-center gap-4 py-5 bg-white/[0.02] border border-white/5 rounded-3xl text-[10px] font-black tracking-[0.3em] text-white/20 hover:text-gold hover:bg-gold/5 transition-all uppercase group" 
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div className="w-1 h-1 bg-white/10 rounded-full group-hover:bg-gold transition-all" />
-                Management Access
-              </Link>
-            </div>
-
-            <div className="mt-auto pb-10 flex flex-col gap-4">
-               <div className="h-px bg-white/5 w-full mb-4" />
-               <button 
-                  onClick={() => { setLanguage(language === 'ar' ? 'fr' : 'ar'); setIsMobileMenuOpen(false); }}
-                  className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 flex items-center justify-center gap-3 font-bold text-sm tracking-widest uppercase"
-               >
-                  <Languages size={18} className="text-gold" />
-                  {language === 'ar' ? 'FRANÇAIS' : 'العربية'}
-               </button>
-            </div>
-          </div>
-        )}
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div className={`fixed inset-0 z-50 bg-black/80 backdrop-blur-3xl transition-all duration-500 lg:hidden flex flex-col ${
+        isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}>
+        <div className={`mt-24 px-6 flex-1 flex flex-col gap-4 overflow-y-auto pb-24 transition-all duration-700 transform ${
+          isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+        }`}>
+          
+          <Link href="/store" className="group rounded-3xl p-6 bg-gradient-to-br from-white/[0.05] to-transparent border border-white/5 hover:border-gold/30 transition-all flex items-center justify-between" onClick={() => setIsMobileMenuOpen(false)}>
+            <div>
+              <span className="text-[10px] text-gold font-bold tracking-widest uppercase opacity-60">Collection</span>
+              <h3 className="text-3xl font-arabic text-white mt-2 group-hover:text-gold transition-colors">{t('store')}</h3>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-gold/10 group-hover:scale-110 transition-all">
+              <ChevronRight size={24} className={`text-white/30 group-hover:text-gold transition-colors ${language === 'ar' ? 'rotate-180' : ''}`} />
+            </div>
+          </Link>
+
+          <Link href={isAuthUser ? "/dashboard" : "/login"} className="group rounded-3xl p-6 bg-gradient-to-br from-white/[0.05] to-transparent border border-white/5 hover:border-gold/30 transition-all flex items-center justify-between" onClick={() => setIsMobileMenuOpen(false)}>
+            <div>
+              <span className="text-[10px] text-white/50 font-bold tracking-widest uppercase">My Space</span>
+              <h3 className="text-3xl font-arabic text-white mt-2 group-hover:text-gold transition-colors">{isAuthUser ? "Dashboard" : "Login"}</h3>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-gold/10 group-hover:scale-110 transition-all">
+              {isAuthUser ? <LayoutDashboard size={22} className="text-white/50 group-hover:text-gold" /> : <LogIn size={22} className="text-white/50 group-hover:text-gold" />}
+            </div>
+          </Link>
+
+          {isAdminUser && (
+            <Link href="/admin" className="group rounded-3xl p-6 bg-gradient-to-br from-gold/10 to-transparent border border-gold/20 hover:border-gold/40 hover:from-gold/20 transition-all flex items-center justify-between" onClick={() => setIsMobileMenuOpen(false)}>
+              <div>
+                <span className="text-[10px] text-gold font-bold tracking-widest uppercase">Management</span>
+                <h3 className="text-3xl font-arabic text-gold mt-2">Admin Panel</h3>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 group-hover:scale-110 transition-all relative">
+                <div className="absolute inset-0 rounded-full border border-gold/30 animate-spin-slow" />
+                <div className="w-2 h-2 bg-gold rounded-full animate-pulse shadow-[0_0_10px_rgba(212,175,55,1)]" />
+              </div>
+            </Link>
+          )}
+
+          <Link 
+            href="/admin-login" 
+            className="mt-4 flex items-center justify-center gap-3 py-5 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all text-[10px] font-bold tracking-[0.3em] uppercase text-white/30 hover:text-white group"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <div className="w-1 h-1 bg-white/20 rounded-full group-hover:bg-gold group-hover:shadow-[0_0_8px_rgba(212,175,55,0.8)] transition-all duration-300" />
+            Portal Access
+          </Link>
+
+        </div>
+
+        {/* Mobile menu footer (Lang switcher) */}
+        <div className={`p-6 border-t border-white/10 bg-black/50 backdrop-blur-xl transition-all duration-1000 delay-100 transform ${
+          isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+        }`}>
+           <button 
+              onClick={() => { setLanguage(language === 'ar' ? 'fr' : 'ar'); setIsMobileMenuOpen(false); }}
+              className="w-full py-4 rounded-xl border border-white/5 hover:bg-white/5 transition-all flex items-center justify-center gap-3 text-[11px] font-bold tracking-[0.3em] uppercase text-white/50 hover:text-white"
+           >
+              <Languages size={16} className="text-gold" />
+              {language === 'ar' ? 'Passer au Français' : 'التبديل إلى العربية'}
+           </button>
+        </div>
+      </div>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>

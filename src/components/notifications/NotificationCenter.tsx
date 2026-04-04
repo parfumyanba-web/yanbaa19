@@ -30,7 +30,7 @@ export const NotificationCenter = ({ userId }: { userId: string }) => {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
-        (payload) => {
+        (payload: any) => {
           setNotifications(prev => [payload.new, ...prev].slice(0, 10))
           // Play a subtle sound or show toast (logic elsewhere)
         }
@@ -38,7 +38,7 @@ export const NotificationCenter = ({ userId }: { userId: string }) => {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [userId, supabase])
+  }, [userId])
 
   const markAsRead = async (id: string) => {
     await supabase.from('notifications').update({ read: true }).eq('id', id)

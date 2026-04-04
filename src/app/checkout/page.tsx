@@ -56,9 +56,8 @@ const CheckoutPage = () => {
     setLoading(true)
     const res = await createOrder(items, shippingInfo)
     if (res.success) {
+      setStep(4)
       await clearCart()
-      alert(t('order_success'))
-      router.push('/')
     } else {
       alert(res.error)
     }

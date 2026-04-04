@@ -49,7 +49,8 @@ export const useCartStore = create<CartStore>()(
         
         // Sync to DB if logged in
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (user) {
           const item = updatedItems.find(i => i.id === newItem.id && i.quantity_label === newItem.quantity_label)!
           await supabase.from('cart_items').upsert({
@@ -69,7 +70,8 @@ export const useCartStore = create<CartStore>()(
 
         // Sync to DB if logged in
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (user) {
           await supabase.from('cart_items')
             .delete()
@@ -87,7 +89,8 @@ export const useCartStore = create<CartStore>()(
 
         // Sync to DB if logged in
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (user) {
           await supabase.from('cart_items')
             .upsert({
@@ -102,7 +105,8 @@ export const useCartStore = create<CartStore>()(
       clearCart: async () => {
         set({ items: [] })
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (user) {
           await supabase.from('cart_items').delete().eq('user_id', user.id)
         }
@@ -114,7 +118,8 @@ export const useCartStore = create<CartStore>()(
 
       loadFromDatabase: async () => {
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (!user) return
 
         const { data, error } = await supabase
@@ -141,7 +146,8 @@ export const useCartStore = create<CartStore>()(
       syncWithDatabase: async () => {
         // Pushes all local items to DB (useful after login)
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { session } } = await supabase.auth.getSession()
+        const user = session?.user
         if (!user) return
 
         const localItems = get().items

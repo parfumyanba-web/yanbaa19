@@ -83,7 +83,9 @@ const HeroCanvas = () => {
   useMotionValueEvent(frameIndex, "change", (latest) => {
     const index = Math.floor(latest) - 1
     if (index !== lastDrawnIndex.current && !isLoading) {
-      drawFrame(index)
+      if (typeof window !== 'undefined') {
+        window.requestAnimationFrame(() => drawFrame(index))
+      }
     }
   })
 
@@ -119,8 +121,8 @@ const HeroCanvas = () => {
         keyframes.push(loadImage(i))
       }
       
-      // Load enough to show initial interaction
-      const criticalPoint = Math.floor(keyframes.length * 0.4)
+      // Load enough to show initial interaction (lowered threshold to unblock faster)
+      const criticalPoint = 1
       await Promise.all(keyframes.slice(0, criticalPoint))
       
       if (active) {

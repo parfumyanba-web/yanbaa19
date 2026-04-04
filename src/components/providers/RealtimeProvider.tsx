@@ -13,9 +13,13 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const router = useRouter()
 
   useEffect(() => {
+    let mounted = true
+    const channels: any[] = []
+
     const setupRealtime = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user
+      if (!user || !mounted) return
 
       // Get user role
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
@@ -27,7 +31,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'orders', filter: isAdmin ? undefined : `user_id=eq.${user.id}` },
-          (payload) => {
+          (payload: any) => {
             if (payload.eventType === 'INSERT') {
               addOrder(payload.new as any)
               if (isAdmin) showToast('New Order', `Order #${payload.new.id.slice(0, 8)} has been placed.`, 'info')
@@ -41,6 +45,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         )
         .subscribe()
+      channels.push(ordersChannel)
 
       // 2. Invoices Subscription
       const invoicesChannel = supabase
@@ -48,7 +53,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'invoices', filter: isAdmin ? undefined : `user_id=eq.${user.id}` },
-          (payload) => {
+          (payload: any) => {
             if (payload.eventType === 'INSERT') {
               addInvoice(payload.new as any)
               if (!isAdmin) showToast('Invoice Issued', `A new invoice has been generated for your order.`, 'success')
@@ -59,6 +64,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         )
         .subscribe()
+      channels.push(invoicesChannel)
 
       // 3. Profiles Subscription 
       const profilesChannel = supabase
@@ -66,7 +72,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .on(
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'profiles' },
-          (payload) => {
+          (payload: any) => {
             updateProfile(payload.new)
             if (payload.new.id === user.id) {
               setUserProfile(payload.new)
@@ -76,6 +82,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         )
         .subscribe()
+      channels.push(profilesChannel)
 
       // 4. Notifications Subscription
       const notificationsChannel = supabase
@@ -83,22 +90,21 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-          (payload) => {
+          (payload: any) => {
             showToast(payload.new.title, payload.new.message, 'info')
             router.refresh()
           }
         )
         .subscribe()
-
-      return () => {
-        supabase.removeChannel(ordersChannel)
-        supabase.removeChannel(invoicesChannel)
-        supabase.removeChannel(profilesChannel)
-        supabase.removeChannel(notificationsChannel)
-      }
+      channels.push(notificationsChannel)
     }
 
     setupRealtime()
+
+    return () => {
+      mounted = false
+      channels.forEach(ch => supabase.removeChannel(ch))
+    }
   }, [supabase, router, addOrder, updateOrder, addInvoice, updateInvoice, setUserProfile, updateProfile, showToast])
 
   return <>{children}</>
