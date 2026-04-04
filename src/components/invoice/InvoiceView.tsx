@@ -132,13 +132,13 @@ const InvoiceView = ({ invoice, order, onClose }: InvoiceViewProps) => {
 
            {/* Footer Note */}
            <div className="mt-20 text-center opacity-20 no-print">
-              <p className="text-[10px] uppercase tracking-[0.5em] font-light">THANK YOU FOR YOUR TRUST IN YANBA PERFUMES</p>
+              <p className="text-[10px] uppercase tracking-[0.5em] font-light">{t('thank_you_message')}</p>
            </div>
         </div>
 
         {/* Action Bar (No Print) */}
         <div className="p-6 bg-white/5 border-t border-white/10 flex justify-between items-center no-print sm:px-12">
-           <p className="text-[10px] text-white/20 uppercase tracking-widest">Digital Audit Log: {invoice.id.toUpperCase()}</p>
+           <p className="text-[10px] text-white/20 uppercase tracking-widest">{t('digital_audit_log')}: {invoice.id.toUpperCase()}</p>
            <LuxuryButton onClick={handlePrint} className="px-8 flex items-center gap-2">
               <Download size={18} />
               {t('download_invoice')}

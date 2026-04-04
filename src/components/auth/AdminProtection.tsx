@@ -12,18 +12,34 @@ export default async function AdminProtection({ children }: AdminProtectionProps
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    redirect('/admin-login')
+    console.warn('[Admin Protection] User not authenticated, redirecting to login.')
+    redirect('/admin-login?error=NotLoggedIn')
   }
 
+  // 1. FAST CHECK: JWT Metadata
+  // This avoids a database query if the role is already in the token.
+  const isJwtAdmin = user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin'
+  
+  if (isJwtAdmin) {
+    return <>{children}</>
+  }
+
+  // 2. FALLBACK: Database Query
+  // Only if metadata is missing, we check the profiles table.
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (profileError || profile?.role !== 'admin') {
-    // Optionally log out if a non-admin tries to access admin routes
-    redirect('/admin-login?error=Unauthorized')
+  if (profileError) {
+    console.error(`[Admin Protection] Profile Fetch Error: ${profileError.message}`)
+    redirect('/admin-login?error=ProfileNotFound')
+  }
+
+  if (profile?.role !== 'admin') {
+    console.warn(`[Admin Protection] Unauthorized. Role: ${profile?.role}`)
+    redirect('/admin-login?error=UnauthorizedRole')
   }
 
   return (

@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ShoppingBag, ChevronRight, Package, Loader2, ArrowRight, CheckCircle2, Settings } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import InvoiceView from '@/components/invoice/InvoiceView'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 
@@ -51,9 +52,9 @@ const RecentOrderRow = ({ id, date, status, total, invoice, onViewInvoice }: any
              {t('view_invoice')}
            </button>
          )}
-         <span className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] border ${statusColors[status] || 'text-white/40 bg-white/5'}`}>
-           {status}
-         </span>
+          <span className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] border ${statusColors[status] || 'text-white/40 bg-white/5'}`}>
+            {t(status)}
+          </span>
          <p className="font-bold text-white/90 text-sm hidden sm:block">{total}</p>
          <ChevronRight size={18} className="text-white/10 group-hover:text-gold transition-colors" />
       </div>
@@ -61,10 +62,35 @@ const RecentOrderRow = ({ id, date, status, total, invoice, onViewInvoice }: any
   )
 }
 
-export const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, recentOrders }: any) => {
+export const DashboardContent = ({ profile, activeOrdersCount: initialActive, totalPurchases: initialTotal, recentOrders: initialRecent }: any) => {
   const { t, direction } = useLanguage()
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null)
   const [invoiceOrder, setInvoiceOrder] = useState<any>(null)
+
+  const [activeOrdersCount, setActiveOrdersCount] = useState(initialActive)
+  const [totalPurchases, setTotalPurchases] = useState(initialTotal)
+  const [recentOrders, setRecentOrders] = useState(initialRecent)
+
+  useEffect(() => {
+    if (!profile?.id) return
+    const supabase = createClient()
+    const channel = supabase.channel('dashboard-metrics')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${profile.id}` }, async () => {
+         // Reload metrics on any change to orders
+         const { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', profile.id).not('status', 'in', '("delivered","cancelled")')
+         setActiveOrdersCount(count)
+         
+         const { data: purchaseData } = await supabase.from('orders').select('total_price').eq('user_id', profile.id).eq('status', 'delivered')
+         const total = purchaseData?.reduce((acc: number, curr: any) => acc + (Number(curr.total_price) || 0), 0) || 0
+         setTotalPurchases(total)
+         
+         const { data: recent } = await supabase.from('orders').select('*, invoices(*), order_items(*, products(name))').eq('user_id', profile.id).order('created_at', { ascending: false }).limit(5)
+         setRecentOrders(recent || [])
+      })
+      .subscribe()
+      
+    return () => { supabase.removeChannel(channel) }
+  }, [profile?.id])
 
   const handleViewInvoice = (order: any) => {
     setInvoiceOrder(order)
@@ -146,7 +172,7 @@ export const DashboardContent = ({ profile, activeOrdersCount, totalPurchases, r
            {(!recentOrders || recentOrders.length === 0) && (
              <div className="text-center py-12 opacity-20 space-y-4">
                <ShoppingBag size={48} strokeWidth={1} className="mx-auto" />
-               <p className="text-sm uppercase tracking-widest">No order history found</p>
+               <p className="text-sm uppercase tracking-widest">{t('no_order_history_found') || t('no_orders_found')}</p>
              </div>
            )}
         </div>

@@ -5,7 +5,8 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const supabase = await createClient()
   
   const { data: product } = await supabase

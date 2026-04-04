@@ -31,35 +31,52 @@ const AdminOverview = () => {
   const fetchData = async () => {
     const supabase = createClient()
     
-    const { data: { user: authUser } } = await supabase.auth.getUser()
+    const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+    if (userError || !authUser) {
+      console.error('Auth error:', userError)
+      return
+    }
     setUser(authUser)
 
-    // 1. Metrics & Data for Analytics
-    const { data: allOrd } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
-    const totalRev = allOrd?.reduce((acc: number, curr: any) => acc + (Number(curr.paid_amount) || 0), 0) || 0
+    try {
+      // 1. Metrics & Data for Analytics
+      const { data: allOrd, error: ordsErr } = await supabase.from('orders').select('*, profiles(full_name), invoices(*)').order('created_at', { ascending: false })
+      if (ordsErr) throw ordsErr
 
-    // 2. Active Orders Count
-    const { count: ordCount } = await supabase.from('orders').select('*', { count: 'exact', head: true }).not('status', 'in', '("delivered","cancelled")')
+      const totalRev = allOrd?.reduce((acc: number, curr: any) => acc + (Number(curr.paid_amount) || 0), 0) || 0
 
-    // 3. Partners
-    const { count: prtCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'client')
+      // 2. Active Orders Count (pending, confirmed, shipped)
+      const activeOrds = allOrd?.filter((o: any) => !['delivered', 'cancelled'].includes(o.status)) || []
+      const ordCount = activeOrds.length
 
-    // 4. Inventory Volume
-    const { data: inv } = await supabase.from('inventory').select('quantity_in_grams')
-    const totalInv = (inv?.reduce((acc: number, curr: any) => acc + (curr.quantity_in_grams || 0), 0) || 0) / 1000
+      // 3. Partners
+      const { count: prtCount, error: prtErr } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'client')
+      if (prtErr) throw prtErr
 
-    // 5. Recent Activity Feed
-    const { data: act } = await supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(6)
+      // 4. Inventory Volume
+      const { data: inv, error: invErr } = await supabase.from('inventory').select('quantity_in_grams')
+      if (invErr) throw invErr
+      const totalInv = (inv?.reduce((acc: number, curr: any) => acc + (curr.quantity_in_grams || 0), 0) || 0) / 1000
 
-    // 6. Top/Low Stock Products
-    const { data: prd } = await supabase.from('products').select('*, brands(name), inventory(quantity_in_grams)').order('created_at', { ascending: false }).limit(4)
+      // 5. Recent Activity Feed
+      const { data: act, error: actErr } = await supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(6)
+      if (actErr) throw actErr
 
-    setMetrics({ revenue: totalRev, orders: ordCount, partners: prtCount, inventory: totalInv })
-    setAllOrders(allOrd || [])
-    setRecentOrders(allOrd?.slice(0, 6) || [])
-    setActivities(act || [])
-    setTopProducts(prd || [])
-    setLoading(false)
+      // 6. Top/Low Stock Products
+      const { data: prd, error: prdErr } = await supabase.from('products').select('*, brands(name), inventory(quantity_in_grams)').order('created_at', { ascending: false }).limit(4)
+      if (prdErr) throw prdErr
+
+      setMetrics({ revenue: totalRev, orders: ordCount, partners: prtCount, inventory: totalInv })
+      setAllOrders(allOrd || [])
+      setRecentOrders(allOrd?.slice(0, 6) || [])
+      setActivities(act || [])
+      setTopProducts(prd || [])
+    } catch (err: any) {
+      console.error('[Admin Dashboard] Fetch Error:', err.message)
+      // We don't alert here to avoid spamming, but we ensure loading is false
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGenerateInvoice = async (orderId: string) => {
@@ -79,6 +96,13 @@ const AdminOverview = () => {
 
   useEffect(() => {
     fetchData()
+    const supabase = createClient()
+    const channel = supabase.channel('admin-dashboard')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => fetchData())
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [])
 
   const handleStatusUpdate = async (id: string, currentStatus: string) => {
@@ -137,9 +161,9 @@ const AdminOverview = () => {
              <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center text-gold mx-auto animate-pulse">
                 <Bell size={24} />
              </div>
-             <div>
-                <h4 className="text-lg font-bold">Smart Alerts</h4>
-                <p className="text-[10px] text-white/30 uppercase tracking-widest mt-2 leading-relaxed">Notifications are synchronized across all devices in real-time.</p>
+              <div>
+                <h4 className="text-lg font-bold">{t('smart_alerts')}</h4>
+                <p className="text-[10px] text-white/30 uppercase tracking-widest mt-2 leading-relaxed">{t('notifications_sync')}</p>
              </div>
           </div>
         </div>
@@ -157,7 +181,7 @@ const AdminOverview = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
         <div className="xl:col-span-2 glass-card p-8 rounded-[2.5rem] border border-white/5">
            <div className="flex items-center justify-between mb-10">
-             <h3 className="text-2xl font-bold font-arabic tracking-tight border-l-4 border-gold pl-4 uppercase">Recent Transactions</h3>
+             <h3 className="text-2xl font-bold font-arabic tracking-tight border-l-4 border-gold pl-4 uppercase">{t('recent_transactions')}</h3>
              <Link href="/admin/orders" className="bg-white/5 px-6 py-2 rounded-xl text-gold text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-2">
                {t('view_details')} <ArrowUpRight size={14} />
              </Link>
@@ -201,7 +225,7 @@ const AdminOverview = () => {
                       onClick={() => handleStatusUpdate(order.id, order.status)}
                       className={`px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.1em] border transition-all ${getStatusStyle(order.status)}`}
                     >
-                      {order.status}
+                      {t(order.status)}
                     </button>
                   </div>
                 </div>
@@ -219,6 +243,7 @@ const AdminOverview = () => {
                   category={item.brands?.name || '...'} 
                   units={`${((item.inventory?.[0]?.quantity_in_grams || 0) / 1000).toFixed(1)}kg`} 
                   isLow={(item.inventory?.[0]?.quantity_in_grams || 0) < 5000}
+                  t={t}
                 />
               ))}
            </div>
@@ -255,8 +280,10 @@ const StatCard = ({ title, value, change, icon }: any) => (
   </div>
 )
 
-const TopProduct = ({ name, category, units, isLow }: any) => (
-  <div className="flex items-center gap-6 group">
+const TopProduct = ({ name, category, units, isLow }: any) => {
+  const { t } = useLanguage()
+  return (
+    <div className="flex items-center gap-6 group">
     <div className={`w-14 h-14 bg-white/5 rounded-2xl border flex items-center justify-center font-bold transition-all ${isLow ? 'border-red-500/20 text-red-500' : 'border-white/10 text-gold group-hover:border-gold/30'}`}>
       {name[0]}
     </div>
@@ -266,9 +293,10 @@ const TopProduct = ({ name, category, units, isLow }: any) => (
     </div>
     <div className="text-right">
       <p className={`font-bold text-sm tracking-tight ${isLow ? 'text-red-400' : 'text-gold'}`}>{units}</p>
-      {isLow && <p className="text-[8px] text-red-500/60 uppercase font-black tracking-tighter">Low Stock</p>}
+      {isLow && <p className="text-[8px] text-red-500/60 uppercase font-black tracking-tighter">{t('low_stock_label')}</p>}
     </div>
   </div>
-)
+  )
+}
 
 export default AdminOverview

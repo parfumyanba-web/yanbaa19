@@ -64,7 +64,7 @@ export const NotificationCenter = ({ userId }: { userId: string }) => {
       {isOpen && (
         <div className={`absolute top-full mt-4 w-80 glass-card rounded-3xl border border-white/10 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 ${direction === 'rtl' ? 'left-0' : 'right-0'}`}>
           <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-            <h3 className="font-bold text-white/90 font-arabic">{t('notifications') || 'Notifications'}</h3>
+            <h3 className="font-bold text-white/90 font-arabic">{t('notifications')}</h3>
             <button onClick={() => setIsOpen(false)} className="text-white/20 hover:text-white transition-colors">
                <X size={16} />
             </button>
@@ -74,7 +74,7 @@ export const NotificationCenter = ({ userId }: { userId: string }) => {
             {notifications.length === 0 ? (
               <div className="p-12 text-center text-white/20">
                 <Bell size={32} className="mx-auto mb-4 opacity-50" />
-                <p className="text-[10px] uppercase tracking-widest">No notifications yet</p>
+                <p className="text-[10px] uppercase tracking-widest">{t('no_notifications')}</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -103,7 +103,7 @@ export const NotificationCenter = ({ userId }: { userId: string }) => {
           
           <div className="p-4 bg-white/[0.02] text-center border-t border-white/5">
              <button className="text-[10px] text-gold uppercase tracking-[0.2em] font-bold hover:underline">
-                View All / عرض الكل
+                {t('view_all')}
              </button>
           </div>
         </div>

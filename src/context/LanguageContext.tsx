@@ -141,7 +141,15 @@ const translations: Record<Language, Record<string, string>> = {
     total_purchases: 'إجمالي المشتريات',
     in_process: 'قيد المعالجة',
     available: 'متاح',
+    signout: 'تسجيل الخروج',
     no_order_history: 'لا يوجد سجل طلبات',
+    no_orders_found: 'لم يتم العثور على أي طلبات',
+    recent_transactions: 'أحدث المعاملات',
+    smart_alerts: 'تنبيهات ذكية',
+    notifications_sync: 'يتم مزامنة التنبيهات عبر جميع الأجهزة في الوقت الفعلي.',
+    low_stock_label: 'مخزون منخفض',
+    no_notifications: 'لا توجد تنبيهات حالياً',
+    view_all: 'عرض الكل',
     
     // Orders Page
     order_history_title: 'سجل الطلبات',
@@ -200,6 +208,15 @@ const translations: Record<Language, Record<string, string>> = {
     profile_updated: 'تم تحديث الملف الشخصي بنجاح!',
     password_updated: 'تم تحديث كلمة المرور بنجاح!',
     passwords_not_match: 'كلمات المرور غير متطابقة',
+    
+    // Admin Login
+    admin_login_subtitle: 'إدارة ينبع للعطور',
+    email_address: 'البريد الإلكتروني',
+    authorized_only: 'للموظفين المصرّح لهم فقط • اتصال مؤمن ومشفّر',
+    err_not_logged_in: 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم.',
+    err_profile_not_found: 'ملف المسؤول غير موجود. يرجى الاتصال بالدعم.',
+    err_unauthorized_role: 'غير مصرح لك. حسابك لا يملك صلاحيات المسؤول.',
+    err_unauthorized: 'وصول غير مصرح به.',
   },
   fr: {
     // Navbar
@@ -329,7 +346,15 @@ const translations: Record<Language, Record<string, string>> = {
     total_purchases: 'Total des Achats',
     in_process: 'En cours',
     available: 'Disponible',
+    signout: 'Déconnexion',
     no_order_history: 'Aucun historique de commandes',
+    no_orders_found: 'Aucune commande trouvée',
+    recent_transactions: 'Transactions Récentes',
+    smart_alerts: 'Alertes Intelligentes',
+    notifications_sync: 'Les notifications sont synchronisées en temps réel sur tous vos appareils.',
+    low_stock_label: 'Stock Faible',
+    no_notifications: 'Aucune notification pour le moment',
+    view_all: 'Voir Tout',
 
     // Orders Page
     order_history_title: 'Historique des commandes',
@@ -388,6 +413,15 @@ const translations: Record<Language, Record<string, string>> = {
     profile_updated: 'Profil mis à jour avec succès !',
     password_updated: 'Mot de passe mis à jour avec succès !',
     passwords_not_match: 'Les mots de passe ne correspondent pas',
+
+    // Admin Login
+    admin_login_subtitle: 'Administration Yanba Parfums',
+    email_address: 'Adresse Email',
+    authorized_only: 'Personnel autorisé uniquement • Connexion sécurisée',
+    err_not_logged_in: 'Veuillez vous connecter pour accéder au tableau de bord.',
+    err_profile_not_found: 'Profil administrateur non trouvé. Veuillez contacter le support.',
+    err_unauthorized_role: 'Non autorisé. Votre compte n\'a pas de privilèges administrateur.',
+    err_unauthorized: 'Accès non autorisé.',
   }
 }
 

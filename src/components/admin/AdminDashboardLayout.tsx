@@ -3,8 +3,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Box, ShoppingCart, Users, Settings, LogOut, Bell, Languages } from 'lucide-react'
+import { LogOut, Bell, Languages, LayoutDashboard, Box, ShoppingCart, Users, Settings } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
+import { adminLogout } from '@/lib/auth/actions'
 import { clsx } from 'clsx'
 
 const AdminDashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -67,7 +68,10 @@ const AdminDashboardLayout = ({ children }: { children: React.ReactNode }) => {
           >
             <Languages size={18} /> {language === 'ar' ? 'Français' : 'العربية'}
           </button>
-          <button className="flex items-center gap-3 text-white/40 hover:text-red-400 transition-colors text-sm w-full">
+          <button 
+            onClick={() => adminLogout()}
+            className="flex items-center gap-3 text-white/40 hover:text-red-400 transition-colors text-sm w-full"
+          >
             <LogOut size={18} /> {t('signout')}
           </button>
         </div>

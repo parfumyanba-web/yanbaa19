@@ -27,6 +27,8 @@ export async function adminSignIn(formData: FormData) {
   const password = formData.get('password') as string
   const supabase = await createClient()
 
+  console.log(`[Admin Login Attempt] Email: ${identifier}`)
+
   // Admins MUST use email
   if (!identifier.includes('@')) {
     return { error: 'Admin access requires a valid email address.' }
@@ -37,16 +39,23 @@ export async function adminSignIn(formData: FormData) {
     password,
   })
 
-  if (error) return { error: error.message }
+  if (error) {
+    console.error(`[Admin Login Error] Auth Failure: ${error.message}`)
+    return { error: error.message }
+  }
 
-  // Role Verification from JWT metadata (NOT profiles table - avoids RLS recursion)
-  const isAdmin = data.user.app_metadata?.role === 'admin' || data.user.user_metadata?.role === 'admin'
+  // Role Verification from JWT metadata (NOT profiles table - avoids RLS recursion here)
+  const appRole = data.user.app_metadata?.role
+  const userRole = data.user.user_metadata?.role
+  const isAdmin = appRole === 'admin' || userRole === 'admin'
 
   if (!isAdmin) {
+    console.warn(`[Admin Login Error] Unauthorized Role. AppRole: ${appRole}, UserRole: ${userRole}`)
     await supabase.auth.signOut()
     return { error: 'Unauthorized access. Administrators only.' }
   }
 
+  console.log(`[Admin Login Success] User ${data.user.email} authenticated.`)
   revalidatePath('/', 'layout')
   redirect('/admin')
 }
@@ -150,8 +159,31 @@ export async function signUp(formData: FormData) {
 
 export async function signOut() {
   const supabase = await createClient()
+  
+  // Get user before signing out to determine redirect path
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = user?.app_metadata?.role === 'admin' || user?.user_metadata?.role === 'admin'
+  
   await supabase.auth.signOut()
-  redirect('/login')
+  
+  revalidatePath('/', 'layout')
+  
+  // Redirect to respective login page
+  if (isAdmin) {
+    redirect('/admin-login')
+  } else {
+    redirect('/login')
+  }
+}
+
+// Alias for components that expect 'adminLogout'
+export async function adminLogout() {
+  return await signOut()
+}
+
+// Alias for components that expect 'logoutUser'
+export async function logoutUser() {
+  return await signOut()
 }
 
 import { revalidatePath } from 'next/cache'

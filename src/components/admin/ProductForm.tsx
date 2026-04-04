@@ -4,7 +4,8 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createProduct, updateProduct } from '@/actions/products'
 import LuxuryButton from '@/components/ui/LuxuryButton'
-import { X, Upload, Plus } from 'lucide-react'
+import ImageUpload from './ImageUpload'
+import { X, Upload, Plus, ImageIcon } from 'lucide-react'
 
 interface ProductFormProps {
   initialData?: any
@@ -16,6 +17,7 @@ export default function ProductForm({ initialData, brands, categories }: Product
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState<string>(initialData?.image_url || '')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -92,20 +94,27 @@ export default function ProductForm({ initialData, brands, categories }: Product
           </div>
 
           <div className="glass-card p-6 space-y-4">
-            <h3 className="text-lg font-bold">Image</h3>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-white/40">Image URL</label>
-              <div className="flex gap-2">
-                <input 
-                  name="image_url"
-                  defaultValue={initialData?.image_url}
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors"
-                  placeholder="https://..."
-                />
-                <button type="button" className="p-3 bg-white/5 border border-white/10 rounded-xl hover:text-gold transition-colors">
-                  <Upload size={18} />
-                </button>
-              </div>
+            <div className="flex items-center justify-between">
+               <h3 className="text-lg font-bold">Product Visual</h3>
+               <ImageIcon size={18} className="text-gold/50" />
+            </div>
+            
+            <input type="hidden" name="image_url" value={imageUrl} />
+            
+            <ImageUpload 
+              defaultValue={initialData?.image_url}
+              onImageUploaded={(url) => setImageUrl(url)}
+              onImageRemoved={() => setImageUrl('')}
+            />
+
+            <div className="space-y-2 pt-4 border-t border-white/5">
+              <label className="text-[10px] uppercase tracking-widest text-white/40">Manual URL (Optional)</label>
+              <input 
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-gold/50 transition-colors"
+                placeholder="https://external-image-url.com/image.jpg"
+              />
             </div>
           </div>
         </div>

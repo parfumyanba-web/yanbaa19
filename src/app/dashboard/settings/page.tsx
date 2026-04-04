@@ -60,7 +60,7 @@ export default function SettingsPage() {
     if (error) {
       setMsg({ text: error.message, type: 'error' })
     } else {
-      setMsg({ text: 'Profile updated successfully!', type: 'success' })
+      setMsg({ text: t('profile_updated'), type: 'success' })
     }
     setLoading(false)
   }
@@ -68,7 +68,7 @@ export default function SettingsPage() {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setMsg({ text: 'Passwords do not match', type: 'error' })
+      setMsg({ text: t('passwords_not_match'), type: 'error' })
       return
     }
     setLoading(true)
@@ -79,19 +79,19 @@ export default function SettingsPage() {
     if (error) {
       setMsg({ text: error.message, type: 'error' })
     } else {
-      setMsg({ text: 'Password updated successfully!', type: 'success' })
+      setMsg({ text: t('password_updated'), type: 'success' })
       setPasswordForm({ newPassword: '', confirmPassword: '' })
     }
     setLoading(false)
   }
 
-  if (!profile) return <div className="p-8 text-center text-white/50 animate-pulse">Loading...</div>
+  if (!profile) return <div className="p-8 text-center text-gold uppercase tracking-[0.3em] font-arabic animate-pulse text-sm">{t('loading')}</div>
 
   return (
     <div className="space-y-8 animate-fade-in p-4 sm:p-0">
       <header>
-        <h1 className="text-3xl font-bold font-arabic gold-text-gradient">{t('settings') || 'Settings'}</h1>
-        <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mt-2">Manage your account information and security</p>
+        <h1 className="text-3xl font-bold font-arabic gold-text-gradient">{t('settings')}</h1>
+        <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mt-2">{t('settings_subtitle')}</p>
       </header>
 
       {msg.text && (
@@ -107,40 +107,40 @@ export default function SettingsPage() {
             <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-gold border border-white/10">
               <User size={20} />
             </div>
-            <h3 className="text-xl font-bold text-white/90">Personal Information</h3>
+            <h3 className="text-xl font-bold font-arabic text-white/90">{t('personal_information')}</h3>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Full Name</label>
+              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('full_name')}</label>
               <input value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" required />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Store Name</label>
+              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('store_name')}</label>
               <input value={formData.store_name} onChange={e => setFormData({...formData, store_name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" required />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Phone Number</label>
+              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('phone_number')}</label>
               <input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" required dir="ltr" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Wilaya</label>
+                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('wilaya')}</label>
                 <input value={formData.wilaya} onChange={e => setFormData({...formData, wilaya: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" />
               </div>
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Commune</label>
+                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('commune')}</label>
                 <input value={formData.commune} onChange={e => setFormData({...formData, commune: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" />
               </div>
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Address</label>
+              <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('address')}</label>
               <textarea value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all resize-none" rows={3} />
             </div>
           </div>
 
           <LuxuryButton type="submit" className="w-full py-4 mt-6" disabled={loading}>
-            {loading ? 'Saving...' : 'Save Changes'}
+            {loading ? t('saving') : t('save_changes')}
           </LuxuryButton>
         </form>
 
@@ -151,22 +151,22 @@ export default function SettingsPage() {
               <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-gold border border-white/10">
                 <ShieldCheck size={20} />
               </div>
-              <h3 className="text-xl font-bold text-white/90">Security Settings</h3>
+              <h3 className="text-xl font-bold font-arabic text-white/90">{t('security_settings')}</h3>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">New Password</label>
+                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('new_password')}</label>
                 <input type="password" value={passwordForm.newPassword} onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" minLength={6} required />
               </div>
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">Confirm Password</label>
+                <label className="text-[10px] uppercase tracking-widest text-white/40 ml-1 mb-2 block">{t('confirm_password')}</label>
                 <input type="password" value={passwordForm.confirmPassword} onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-gold/50 outline-none transition-all" minLength={6} required />
               </div>
             </div>
 
             <LuxuryButton type="submit" className="w-full py-4 mt-6" disabled={loading || !passwordForm.newPassword}>
-              {loading ? 'Updating...' : 'Update Password'}
+              {loading ? t('updating') : t('update_password')}
             </LuxuryButton>
           </form>
         </div>

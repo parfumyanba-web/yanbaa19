@@ -72,6 +72,9 @@ export async function createProduct(formData: FormData) {
   })
 
   revalidatePath('/admin/products')
+  revalidatePath('/products')
+  revalidatePath('/store')
+  revalidatePath('/')
   return { success: true, product }
 }
 
@@ -98,6 +101,9 @@ export async function updateProduct(id: string, formData: FormData) {
   if (error) return { error: error.message }
 
   revalidatePath('/admin/products')
+  revalidatePath('/products')
+  revalidatePath('/store')
+  revalidatePath('/')
   return { success: true }
 }
 
@@ -108,14 +114,38 @@ export async function deleteProduct(id: string) {
   if (error) return { error: error.message }
 
   revalidatePath('/admin/products')
+  revalidatePath('/products')
+  revalidatePath('/store')
+  revalidatePath('/')
   return { success: true }
 }
 
-export async function getProducts() {
+export async function getProducts(filters?: { name?: string, brandId?: string, categoryId?: string }) {
   const supabase = await createClient()
-  const { data, error } = await supabase
+  
+  let selectString = '*, brands(name), product_categories(category_id, categories(name)), product_tags(tags(name))'
+  
+  if (filters?.categoryId) {
+    selectString = '*, brands(name), product_categories!inner(category_id, categories(name)), product_tags(tags(name))'
+  }
+
+  let query = supabase
     .from('products')
-    .select('*, brands(name), product_categories(categories(name)), product_tags(tags(name))')
+    .select(selectString)
+
+  if (filters?.name) {
+    query = query.ilike('name', `%${filters.name}%`)
+  }
+
+  if (filters?.brandId) {
+    query = query.eq('brand_id', filters.brandId)
+  }
+
+  if (filters?.categoryId) {
+    query = query.eq('product_categories.category_id', filters.categoryId)
+  }
+
+  const { data, error } = await query
     .order('created_at', { ascending: false })
 
   if (error) {

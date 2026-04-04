@@ -7,9 +7,18 @@ import { createClient } from '@/lib/supabase/server'
 import { deleteProduct, getProducts } from '@/actions/products'
 import Link from 'next/link'
 import DeleteProductButton from '@/components/admin/DeleteProductButton'
+import ProductFilterBar from '@/components/admin/ProductFilterBar'
 
-const AdminProducts = async () => {
-  const products = await getProducts()
+interface AdminProductsProps {
+  searchParams: {
+    name?: string
+    brandId?: string
+    categoryId?: string
+  }
+}
+
+const AdminProducts = async ({ searchParams }: AdminProductsProps) => {
+  const products = await getProducts(searchParams)
   const supabase = await createClient()
   const { data: brands } = await supabase.from('brands').select('*')
   const { data: categories } = await supabase.from('categories').select('*')
@@ -56,24 +65,10 @@ const AdminProducts = async () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex gap-4 items-center glass-card p-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search products by name..." 
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-gold/50 transition-colors text-sm"
-          />
-        </div>
-        <select className="bg-[#121212] border border-white/10 rounded-xl px-6 py-3 text-sm text-white/50 outline-none hover:border-white/20 transition-colors">
-          <option>All Brands</option>
-          {brands?.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-        </select>
-        <select className="bg-[#121212] border border-white/10 rounded-xl px-6 py-3 text-sm text-white/50 outline-none hover:border-white/20 transition-colors">
-          <option>All Categories</option>
-          {categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-      </div>
+      <ProductFilterBar 
+        brands={brands || []} 
+        categories={categories || []} 
+      />
 
       {/* Products Table */}
       <div className="glass-card overflow-hidden">
