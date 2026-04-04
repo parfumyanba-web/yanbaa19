@@ -48,13 +48,14 @@ export async function adminSignIn(formData: FormData) {
     return { error: 'Admin access requires a valid email address.' }
   }
 
+  console.log(`[Admin SignIn] 1. Auth attempt for ${identifier}`);
   const { data, error } = await supabase.auth.signInWithPassword({
     email: identifier,
     password,
   })
 
   if (error) {
-    console.error(`[Admin Login Error] Auth Failure: ${error.message}`)
+    console.error(`[Admin SignIn] 2. Auth Failure: ${error.message}`)
     return { error: error.message }
   }
 
@@ -62,14 +63,17 @@ export async function adminSignIn(formData: FormData) {
   const appRole = data.user.app_metadata?.role
   const userRole = data.user.user_metadata?.role
   const isMetadataAdmin = appRole === 'admin' || userRole === 'admin'
+  
+  console.log(`[Admin SignIn] 3. Metadata check: appRole=${appRole}, userRole=${userRole}`)
 
   if (!isMetadataAdmin) {
-    console.warn(`[Admin Login Error] Unauthorized Metadata Role. AppRole: ${appRole}, UserRole: ${userRole}`)
+    console.warn(`[Admin SignIn] 4. Unauthorized Metadata. Signing out.`)
     await supabase.auth.signOut()
     return { error: 'Unauthorized access. Administrators only.' }
   }
 
   // Role Verification (Level 2: Isolated admin_profiles table)
+  console.log(`[Admin SignIn] 5. Querying admin_profiles for ID: ${data.user.id}`)
   const { data: adminProfile, error: profileError } = await supabase
     .from('admin_profiles')
     .select('id, is_active')
@@ -77,10 +81,12 @@ export async function adminSignIn(formData: FormData) {
     .single()
 
   if (profileError || !adminProfile || !adminProfile.is_active) {
-    console.error(`[Admin Login Error] Admin Profile Not Found or Inactive. Error: ${profileError?.message}`)
+    console.error(`[Admin SignIn] 6. Admin Profile Not Found/Inactive. Error: ${profileError?.message}`)
     await supabase.auth.signOut()
     return { error: 'Unauthorized access. Access restricted to verified administrators.' }
   }
+
+  console.log(`[Admin SignIn] 7. Success! Redirecting to /admin`)
 
   console.log(`[Admin Login Success] Admin ${data.user.email} authenticated.`)
   

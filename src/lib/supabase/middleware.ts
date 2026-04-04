@@ -55,16 +55,23 @@ export async function updateSession(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
+  const path = request.nextUrl.pathname
 
-  // 1. Handle Admin Route Protection (uses JWT metadata, NOT profiles query)
-  if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin-login')) {
+  // 1. Handle Admin Route Protection (uses JWT metadata)
+  if (path.startsWith('/admin') && !path.startsWith('/admin-login')) {
+      console.log(`[Middleware Check] Path: ${path}, User: ${user?.email || 'None'}`);
+      
       if (!user) {
+        console.warn(`[Middleware Admin] No user found. Redirecting to /admin-login`)
         return NextResponse.redirect(new URL('/admin-login', request.url))
       }
 
-      // Check role from JWT metadata (no DB query = no RLS recursion)
+      // Check role from JWT metadata
       const isAdmin = user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin'
+      console.log(`[Middleware Admin] IsAdmin: ${isAdmin}`)
+      
       if (!isAdmin) {
+        console.warn(`[Middleware Admin] Attempted access by non-admin: ${user.email}`)
         return NextResponse.redirect(new URL('/', request.url))
       }
     }
