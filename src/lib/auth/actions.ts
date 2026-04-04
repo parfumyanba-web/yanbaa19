@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 
 export async function signIn(formData: FormData) {
   const identifier = formData.get('identifier') as string
@@ -17,6 +18,20 @@ export async function signIn(formData: FormData) {
   })
 
   if (error) return { error: error.message }
+  
+  // Log Activity
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const headersList = await headers()
+    const ip = headersList.get('x-forwarded-for')?.split(',')[0] || 'localhost'
+    
+    await supabase.from('activity_logs').insert({
+      user_id: user.id,
+      action: 'LOGIN',
+      description: 'User logged in to partner portal',
+      ip_address: ip
+    })
+  }
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')
@@ -44,18 +59,31 @@ export async function adminSignIn(formData: FormData) {
     return { error: error.message }
   }
 
-  // Role Verification from JWT metadata (NOT profiles table - avoids RLS recursion here)
+  // Role Verification (Level 1: JWT metadata)
   const appRole = data.user.app_metadata?.role
   const userRole = data.user.user_metadata?.role
-  const isAdmin = appRole === 'admin' || userRole === 'admin'
+  const isMetadataAdmin = appRole === 'admin' || userRole === 'admin'
 
-  if (!isAdmin) {
-    console.warn(`[Admin Login Error] Unauthorized Role. AppRole: ${appRole}, UserRole: ${userRole}`)
+  if (!isMetadataAdmin) {
+    console.warn(`[Admin Login Error] Unauthorized Metadata Role. AppRole: ${appRole}, UserRole: ${userRole}`)
     await supabase.auth.signOut()
     return { error: 'Unauthorized access. Administrators only.' }
   }
 
-  console.log(`[Admin Login Success] User ${data.user.email} authenticated.`)
+  // Role Verification (Level 2: Isolated admin_profiles table)
+  const { data: adminProfile, error: profileError } = await supabase
+    .from('admin_profiles')
+    .select('id, is_active')
+    .eq('id', data.user.id)
+    .single()
+
+  if (profileError || !adminProfile || !adminProfile.is_active) {
+    console.error(`[Admin Login Error] Admin Profile Not Found or Inactive. Error: ${profileError?.message}`)
+    await supabase.auth.signOut()
+    return { error: 'Unauthorized access. Access restricted to verified administrators.' }
+  }
+
+  console.log(`[Admin Login Success] Admin ${data.user.email} authenticated.`)
   revalidatePath('/', 'layout')
   redirect('/admin')
 }
@@ -151,6 +179,20 @@ export async function signUp(formData: FormData) {
 
   if (signInError) {
     return { success: true, message: 'Account created, please log in.' }
+  }
+
+  // Log Activity
+  const { data: authData } = await supabase.auth.getUser()
+  if (authData.user) {
+    const headersList = await headers()
+    const ip = headersList.get('x-forwarded-for')?.split(',')[0] || 'localhost'
+    
+    await supabase.from('activity_logs').insert({
+      user_id: authData.user.id,
+      action: 'LOGIN',
+      description: 'New account created and logged in',
+      ip_address: ip
+    })
   }
 
   revalidatePath('/', 'layout')

@@ -18,7 +18,7 @@ const ClientOrders = () => {
       
       const { data } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, order_items(*, products(name)), invoices(*)')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
 

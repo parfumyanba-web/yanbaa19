@@ -56,24 +56,22 @@ export async function GET() {
       adminId = newUser.user.id
     }
 
-    // Step 3: Ensure profile exists with admin role (service role bypasses RLS)
+    // Step 3: Ensure isolated admin profile exists (service role bypasses RLS)
     const { error: profileError } = await supabaseAdmin
-      .from('profiles')
+      .from('admin_profiles')
       .upsert({
         id: adminId,
+        email: adminEmail,
         full_name: 'Site Administrator',
-        phone: '0000000000',
-        store_name: 'Yanba Admin',
-        address: 'HQ Algiers',
-        wilaya: 'Alger',
-        commune: 'Centre',
-        role: 'admin',
         is_active: true,
       }, { onConflict: 'id' })
 
     if (profileError) {
-      return NextResponse.json({ error: `Profile error: ${profileError.message}` }, { status: 500 })
+      return NextResponse.json({ error: `Admin Profile error: ${profileError.message}` }, { status: 500 })
     }
+
+    // Optional: Remove from public.profiles if it exists there
+    await supabaseAdmin.from('profiles').delete().eq('id', adminId)
 
     return NextResponse.json({
       success: true,

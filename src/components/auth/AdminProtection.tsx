@@ -24,21 +24,15 @@ export default async function AdminProtection({ children }: AdminProtectionProps
     return <>{children}</>
   }
 
-  // 2. FALLBACK: Database Query
-  // Only if metadata is missing, we check the profiles table.
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
+  // 2. FALLBACK: Database Query (Using isolated admin_profiles table)
+  const { data: adminProfile, error: profileError } = await supabase
+    .from('admin_profiles')
+    .select('is_active')
     .eq('id', user.id)
     .single()
 
-  if (profileError) {
-    console.error(`[Admin Protection] Profile Fetch Error: ${profileError.message}`)
-    redirect('/admin-login?error=ProfileNotFound')
-  }
-
-  if (profile?.role !== 'admin') {
-    console.warn(`[Admin Protection] Unauthorized. Role: ${profile?.role}`)
+  if (profileError || !adminProfile || !adminProfile.is_active) {
+    console.error(`[Admin Protection] Admin Profile Not Found or Inactive. Error: ${profileError?.message}`)
     redirect('/admin-login?error=UnauthorizedRole')
   }
 

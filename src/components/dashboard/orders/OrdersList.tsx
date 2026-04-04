@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { Package, Calendar, CreditCard } from 'lucide-react'
 import { useRealtimeStore } from '@/store/useRealtimeStore'
 import { useLanguage } from '@/context/LanguageContext'
+import { OrderDetailsModal } from './OrderDetailsModal'
 import Link from 'next/link'
 
 interface Order {
@@ -18,6 +19,7 @@ interface Order {
 export const OrdersList = ({ initialOrders }: { initialOrders: Order[] }) => {
   const { orders, setOrders } = useRealtimeStore()
   const { t } = useLanguage()
+  const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null)
 
   useEffect(() => {
     if (initialOrders) setOrders(initialOrders)
@@ -44,14 +46,20 @@ export const OrdersList = ({ initialOrders }: { initialOrders: Order[] }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-white">
+      {selectedOrder && (
+        <OrderDetailsModal 
+          order={selectedOrder} 
+          onClose={() => setSelectedOrder(null)} 
+        />
+      )}
       {orders && orders.length > 0 ? (
         orders.map((order) => (
           <div key={order.id} className="glass-card hover:border-gold/30 transition-all overflow-hidden border border-white/5 bg-white/2">
             <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-8">
               <div className="space-y-2">
                  <p className="text-[10px] uppercase text-white/30 tracking-widest ">{t('order_reference')}</p>
-                 <p className="font-bold text-gold">#{order.id.slice(0, 8)}</p>
+                 <p className="font-bold text-gold">#{order.id.slice(0, 8).toUpperCase()}</p>
                  <div className="flex items-center gap-2 text-white/40 text-xs">
                    <Calendar size={12} /> {new Date(order.created_at).toLocaleDateString()}
                  </div>
@@ -71,14 +79,17 @@ export const OrdersList = ({ initialOrders }: { initialOrders: Order[] }) => {
               <div className="space-y-2">
                  <p className="text-[10px] uppercase text-white/30 tracking-widest ">{t('accounting')}</p>
                  <div className="flex items-center gap-2 text-white/80 font-bold">
-                   <CreditCard size={14} className="text-gold" />
-                   {order.total_price} {t('price_dzd')}
+                    <CreditCard size={14} className="text-gold" />
+                    {Number(order.total_price).toLocaleString()} {t('price_dzd')}
                  </div>
-                 <p className="text-[10px] text-green-400 uppercase tracking-tighter">{t('paid_label')}: {order.paid_amount} {t('price_dzd')}</p>
+                 <p className="text-[10px] text-green-400 uppercase tracking-tighter">{t('paid_label')}: {Number(order.paid_amount).toLocaleString()} {t('price_dzd')}</p>
               </div>
 
               <div className="flex items-center justify-end">
-                 <button className="px-6 py-3 rounded-lg border border-gold/50 text-gold text-xs font-bold uppercase tracking-widest hover:bg-gold hover:text-black transition-all">
+                 <button 
+                   onClick={() => setSelectedOrder(order)}
+                   className="px-6 py-3 rounded-lg border border-gold/50 text-gold text-xs font-bold uppercase tracking-widest hover:bg-gold hover:text-black transition-all"
+                 >
                     {t('view_details')}
                  </button>
               </div>

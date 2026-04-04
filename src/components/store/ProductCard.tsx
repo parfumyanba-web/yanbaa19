@@ -1,12 +1,18 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Plus, ShoppingBag } from 'lucide-react'
+import { Plus, ShoppingBag, Eye } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { Product } from '@/types/catalog'
 import { useLanguage } from '@/context/LanguageContext'
 
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard = ({ 
+  product, 
+  onQuickView 
+}: { 
+  product: Product
+  onQuickView?: (product: Product) => void
+}) => {
   const { t } = useLanguage()
   const addItem = useCartStore((state) => state.addItem)
 
@@ -37,27 +43,41 @@ const ProductCard = ({ product }: { product: Product }) => {
   }
 
   return (
-    <Link href={`/products/${product.id}`} className="block group">
-      <div className="group glass-card overflow-hidden transition-all duration-700 hover:border-gold/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] rounded-3xl border border-white/5 bg-white/[0.02]">
-        <div className="aspect-[3/4] relative bg-neutral-900 overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-700 flex items-end p-4 md:p-6">
-            <button 
-              onClick={(e) => {
-                e.preventDefault()
-                handleAddToCart()
-              }}
-              className="w-full gold-gradient py-3 md:py-4 rounded-xl md:rounded-2xl text-black text-xs md:text-sm font-bold flex items-center justify-center gap-3 transform translate-y-0 md:translate-y-8 md:group-hover:translate-y-0 transition-all duration-700 shadow-2xl hover:scale-[1.02] active:scale-95"
-            >
-              <Plus size={18} /> {t('add_to_cart')}
-            </button>
-          </div>
+    <div className="group">
+      <Link href={`/products/${product.id}`} className="block">
+        <div className="group glass-card overflow-hidden transition-all duration-700 hover:border-gold/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] rounded-3xl border border-white/5 bg-white/[0.02]">
+          <div className="aspect-[3/4] relative bg-neutral-900 overflow-hidden">
+            <Image
+              src={imageUrl}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-700 flex items-end p-4 md:p-6 gap-2">
+              <button 
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleAddToCart()
+                }}
+                className="flex-1 gold-gradient py-3 md:py-4 rounded-xl md:rounded-2xl text-black text-xs md:text-sm font-bold flex items-center justify-center gap-3 transform translate-y-0 md:translate-y-8 md:group-hover:translate-y-0 transition-all duration-700 shadow-2xl hover:scale-[1.02] active:scale-95"
+              >
+                <Plus size={18} /> {t('add_to_cart')}
+              </button>
+              
+              {onQuickView && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    onQuickView(product)
+                  }}
+                  className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all duration-500 transform translate-y-0 md:translate-y-8 md:group-hover:translate-y-0"
+                  aria-label="Quick View"
+                >
+                  <Eye size={18} />
+                </button>
+              )}
+            </div>
           
           {/* Tags */}
           {product.product_tags && product.product_tags.length > 0 && (
@@ -94,7 +114,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
         </div>
       </div>
-    </Link>
+      </Link>
+    </div>
   )
 }
 

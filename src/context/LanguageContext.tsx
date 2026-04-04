@@ -217,6 +217,16 @@ const translations: Record<Language, Record<string, string>> = {
     err_profile_not_found: 'ملف المسؤول غير موجود. يرجى الاتصال بالدعم.',
     err_unauthorized_role: 'غير مصرح لك. حسابك لا يملك صلاحيات المسؤول.',
     err_unauthorized: 'وصول غير مصرح به.',
+    
+    // Activity Log
+    activity_log: 'تاريخ النشاط',
+    recent_activity: 'النشاطات الأخيرة للسكيريتي',
+    activity_login: 'تسجيل دخول للنظام',
+    activity_profile_update: 'تحديث معلومات الحساب',
+    activity_password_change: 'تغيير كلمة المرور',
+    activity_ip: 'عنوان الجهاز (IP)',
+    activity_date: 'وقت النشاط',
+    no_activity: 'لا يوجد نشاطات مسجلة بعد',
   },
   fr: {
     // Navbar
@@ -422,6 +432,16 @@ const translations: Record<Language, Record<string, string>> = {
     err_profile_not_found: 'Profil administrateur non trouvé. Veuillez contacter le support.',
     err_unauthorized_role: 'Non autorisé. Votre compte n\'a pas de privilèges administrateur.',
     err_unauthorized: 'Accès non autorisé.',
+
+    // Activity Log
+    activity_log: 'Journal d\'activité',
+    recent_activity: 'Activités de sécurité récentes',
+    activity_login: 'Connexion au système',
+    activity_profile_update: 'Mise à jour du profil',
+    activity_password_change: 'Changement de mot de passe',
+    activity_ip: 'Adresse IP',
+    activity_date: 'Date de l\'activité',
+    no_activity: 'Aucune activité enregistrée',
   }
 }
 

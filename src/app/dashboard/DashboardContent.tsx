@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import InvoiceView from '@/components/invoice/InvoiceView'
+import { OrderDetailsModal } from '@/components/dashboard/orders/OrderDetailsModal'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 
 const StatCard = ({ label, value, icon, highlight }: any) => (
@@ -20,7 +21,7 @@ const StatCard = ({ label, value, icon, highlight }: any) => (
   </div>
 )
 
-const RecentOrderRow = ({ id, date, status, total, invoice, onViewInvoice }: any) => {
+const RecentOrderRow = ({ id, date, status, total, invoice, onViewInvoice, onViewDetails }: any) => {
   const { t } = useLanguage()
   const statusColors: any = {
     pending: "text-amber-400 bg-amber-400/10 border-amber-400/20",
@@ -55,6 +56,15 @@ const RecentOrderRow = ({ id, date, status, total, invoice, onViewInvoice }: any
           <span className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] border ${statusColors[status] || 'text-white/40 bg-white/5'}`}>
             {t(status)}
           </span>
+          <button 
+             onClick={(e) => {
+               e.stopPropagation()
+               onViewDetails()
+             }}
+             className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white/40 hover:bg-gold/10 hover:text-gold hover:border-gold/20 transition-all text-[9px] uppercase tracking-widest font-bold"
+           >
+             {t('view_details')}
+           </button>
          <p className="font-bold text-white/90 text-sm hidden sm:block">{total}</p>
          <ChevronRight size={18} className="text-white/10 group-hover:text-gold transition-colors" />
       </div>
@@ -66,6 +76,7 @@ export const DashboardContent = ({ profile, activeOrdersCount: initialActive, to
   const { t, direction } = useLanguage()
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null)
   const [invoiceOrder, setInvoiceOrder] = useState<any>(null)
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<any>(null)
 
   const [activeOrdersCount, setActiveOrdersCount] = useState(initialActive)
   const [totalPurchases, setTotalPurchases] = useState(initialTotal)
@@ -107,6 +118,13 @@ export const DashboardContent = ({ profile, activeOrdersCount: initialActive, to
             setSelectedInvoice(null)
             setInvoiceOrder(null)
           }} 
+        />
+      )}
+
+      {selectedOrderDetails && (
+        <OrderDetailsModal 
+          order={selectedOrderDetails} 
+          onClose={() => setSelectedOrderDetails(null)} 
         />
       )}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
@@ -154,7 +172,7 @@ export const DashboardContent = ({ profile, activeOrdersCount: initialActive, to
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-xl font-bold font-arabic">{t('order_history')}</h3>
           <Link href="/dashboard/orders" className="text-gold text-[10px] font-bold uppercase tracking-[0.2em] hover:underline flex items-center gap-2">
-            {t('view_details')} <ArrowRight size={14} className={direction === 'rtl' ? 'rotate-180' : ''} />
+            {t('view_all')} <ArrowRight size={14} className={direction === 'rtl' ? 'rotate-180' : ''} />
           </Link>
         </div>
         <div className="space-y-4">
@@ -167,6 +185,7 @@ export const DashboardContent = ({ profile, activeOrdersCount: initialActive, to
                 total={`${Number(order.total_price).toLocaleString()} DZD`} 
                 invoice={order.invoices?.[0]}
                 onViewInvoice={() => handleViewInvoice(order)}
+                onViewDetails={() => setSelectedOrderDetails(order)}
               />
             ))}
            {(!recentOrders || recentOrders.length === 0) && (
