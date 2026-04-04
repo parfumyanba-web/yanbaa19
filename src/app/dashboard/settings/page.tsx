@@ -45,19 +45,25 @@ export default function SettingsPage() {
             store_name: p.store_name || ''
           })
         } else {
+          console.error(`[Settings] Profile fetch failed for user ${user.id}:`, error)
           setMsg({ text: error?.message || 'Profile not found', type: 'error' })
           setProfile('error') // Mark as error to stop infinite loading
+          return
         }
 
-        // Fetch Activity Logs
-        const { data: userLogs } = await supabase
+        // Fetch Activity Logs - Wrap in try/catch or handle error to prevent page break if table missing
+        const { data: userLogs, error: logError } = await supabase
           .from('activity_logs')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(5)
         
-        if (userLogs) setLogs(userLogs)
+        if (logError) {
+          console.warn('[Settings] Activity logs fetch failed (table might not exist):', logError)
+        } else if (userLogs) {
+          setLogs(userLogs)
+        }
       } else {
         window.location.href = '/login'
       }
