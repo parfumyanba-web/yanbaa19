@@ -53,7 +53,7 @@ const ProductDetailsPage = async ({ params }: PageProps) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           
           {/* Left: Image Gallery */}
-          <div className="lg:col-span-7 sticky top-32">
+          <div className="lg:col-span-7 lg:sticky lg:top-32">
             <div className="aspect-[4/5] relative rounded-[3rem] overflow-hidden border border-white/5 bg-neutral-900 shadow-2xl group">
                <Image 
                  src={resolveImage(product.image_url)}

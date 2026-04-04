@@ -12,21 +12,20 @@ export async function signIn(formData: FormData) {
   const isEmail = identifier.includes('@')
   const email = isEmail ? identifier : `${identifier}@yanba.com`
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
   if (error) return { error: error.message }
   
-  // Log Activity
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) {
+  // Log Activity (Fast: uses data already in memory)
+  if (data.user) {
     const headersList = await headers()
     const ip = headersList.get('x-forwarded-for')?.split(',')[0] || 'localhost'
     
     await supabase.from('activity_logs').insert({
-      user_id: user.id,
+      user_id: data.user.id,
       action: 'LOGIN',
       description: 'User logged in to partner portal',
       ip_address: ip
@@ -84,6 +83,17 @@ export async function adminSignIn(formData: FormData) {
   }
 
   console.log(`[Admin Login Success] Admin ${data.user.email} authenticated.`)
+  
+  // Log Admin Activity
+  const headersList = await headers()
+  const ip = headersList.get('x-forwarded-for')?.split(',')[0] || 'localhost'
+  await supabase.from('activity_logs').insert({
+    user_id: data.user.id,
+    action: 'ADMIN_LOGIN',
+    description: 'Administrator logged in to portal',
+    ip_address: ip
+  })
+
   revalidatePath('/', 'layout')
   redirect('/admin')
 }
@@ -182,14 +192,13 @@ export async function signUp(formData: FormData) {
   }
 
   // Log Activity
-  const { data: authData } = await supabase.auth.getUser()
-  if (authData.user) {
+  if (data.user) {
     const headersList = await headers()
     const ip = headersList.get('x-forwarded-for')?.split(',')[0] || 'localhost'
     
     await supabase.from('activity_logs').insert({
-      user_id: authData.user.id,
-      action: 'LOGIN',
+      user_id: data.user.id,
+      action: 'SIGNUP',
       description: 'New account created and logged in',
       ip_address: ip
     })
