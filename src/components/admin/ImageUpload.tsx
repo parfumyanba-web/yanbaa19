@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react'
 import { Upload, X, Loader2, ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { resolveProductImage } from '@/lib/utils/imageUtils'
 
 interface ImageUploadProps {
   defaultValue?: string
@@ -11,7 +12,7 @@ interface ImageUploadProps {
 }
 
 export default function ImageUpload({ defaultValue, onImageUploaded, onImageRemoved }: ImageUploadProps) {
-  const [image, setImage] = useState<string | null>(defaultValue || null)
+  const [image, setImage] = useState<string | null>(defaultValue ? resolveProductImage(defaultValue) : null)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()

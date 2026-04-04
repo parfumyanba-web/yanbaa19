@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Search, Plus, AlertTriangle, ArrowUpRight } from 'lucide-react'
 import { updateStock, restock } from '@/actions/inventory'
 import { clsx } from 'clsx'
+import { resolveProductImage } from '@/lib/utils/imageUtils'
 
 interface InventoryItem {
   product_id: string
@@ -57,11 +58,11 @@ export const InventoryList = ({ initialInventory }: { initialInventory: Inventor
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-lg bg-white/5 overflow-hidden border border-white/10">
-                   {item.products.image_url ? (
-                     <img src={item.products.image_url} alt={item.products.name} className="w-full h-full object-cover" />
-                   ) : (
-                     <div className="w-full h-full flex items-center justify-center text-white/20 uppercase text-[10px]">No Image</div>
-                   )}
+                  <img 
+                    src={resolveProductImage(item.products.image_url)} 
+                    alt={item.products.name} 
+                    className="w-full h-full object-cover" 
+                  />
                 </div>
                 <div>
                   <h3 className="font-bold text-white/90 truncate max-w-[150px]">{item.products.name}</h3>

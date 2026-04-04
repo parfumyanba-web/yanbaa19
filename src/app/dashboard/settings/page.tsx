@@ -34,6 +34,7 @@ export default function SettingsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: p, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+        
         if (p) {
           setProfile(p)
           setFormData({
@@ -45,10 +46,25 @@ export default function SettingsPage() {
             store_name: p.store_name || ''
           })
         } else {
-          console.error(`[Settings] Profile fetch failed for user ${user.id}:`, error)
-          setMsg({ text: error?.message || 'Profile not found', type: 'error' })
-          setProfile('error') // Mark as error to stop infinite loading
-          return
+          // Self-Healing: If profile row is missing, pre-fill from auth metadata
+          const meta = user.user_metadata
+          if (meta) {
+            setFormData({
+              full_name: meta.full_name || '',
+              phone: meta.phone || '',
+              wilaya: meta.wilaya || '',
+              commune: meta.commune || '',
+              address: meta.address || '',
+              store_name: meta.store_name || ''
+            })
+            // Set profile to a dummy object to allow the page to render
+            setProfile({ id: user.id, ...meta, placeholder: true })
+          } else {
+            console.error(`[Settings] Profile fetch failed for user ${user.id}:`, error)
+            setMsg({ text: error?.message || 'Profile not found', type: 'error' })
+            setProfile('error')
+            return
+          }
         }
 
         // Fetch Activity Logs - Wrap in try/catch or handle error to prevent page break if table missing
@@ -80,7 +96,7 @@ export default function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { error } = await supabase.from('profiles').update(formData).eq('id', user.id)
+    const { error } = await supabase.from('profiles').upsert({ id: user.id, ...formData })
     if (error) {
       setMsg({ text: error.message, type: 'error' })
     } else {

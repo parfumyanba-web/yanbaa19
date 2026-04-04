@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Search, Eye, CheckCircle, Truck, Package, XCircle, DollarSign, FileText } from 'lucide-react'
+import { Search, Eye, CheckCircle, Truck, Package, XCircle, DollarSign, FileText, Download } from 'lucide-react'
 import { useRealtimeStore } from '@/store/useRealtimeStore'
-import { updateOrderStatus, updateOrderPayment } from '@/actions/orders'
+import { updateOrderStatus, updateOrderPayment, getOrderItems } from '@/actions/orders'
 import { generateInvoice } from '@/actions/invoices'
 import { clsx } from 'clsx'
+import { exportToExcel } from '@/lib/utils/exportUtils'
+import { resolveProductImage } from '@/lib/utils/imageUtils'
 
 interface Order {
   id: string
@@ -25,6 +27,16 @@ export const AdminOrdersList = ({ initialOrders }: { initialOrders: Order[] }) =
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<string | null>(null)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [selectedOrderItems, setSelectedOrderItems] = useState<any[]>([])
+  const [isLoadingItems, setIsLoadingItems] = useState(false)
+
+  const handleViewDetails = async (order: Order) => {
+    setSelectedOrder(order)
+    setIsLoadingItems(true)
+    const items = await getOrderItems(order.id)
+    setSelectedOrderItems(items)
+    setIsLoadingItems(false)
+  }
 
   useEffect(() => {
     if (initialOrders) setOrders(initialOrders)
@@ -63,11 +75,24 @@ export const AdminOrdersList = ({ initialOrders }: { initialOrders: Order[] }) =
     }
   }
 
+  const handleExport = () => {
+    const dataToExport = filteredOrders.map(o => ({
+      ID: o.id,
+      Date: new Date(o.created_at).toLocaleDateString(),
+      Customer: o.profiles?.full_name,
+      Store: o.profiles?.store_name,
+      'Total Price': o.total_price,
+      'Paid Amount': o.paid_amount,
+      Status: o.status
+    }))
+    exportToExcel(dataToExport, `Orders_Export_${new Date().toISOString().split('T')[0]}`)
+  }
+
   return (
     <div className="space-y-8">
       {/* Filter Bar */}
-      <div className="flex gap-4 items-center glass-card p-4">
-        <div className="flex-1 relative">
+      <div className="flex flex-col md:flex-row gap-4 items-center glass-card p-4">
+        <div className="flex-1 relative w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
           <input 
             type="text" 
@@ -77,19 +102,25 @@ export const AdminOrdersList = ({ initialOrders }: { initialOrders: Order[] }) =
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
           {['pending', 'confirmed', 'shipped', 'delivered'].map(s => (
             <button 
               key={s}
               onClick={() => setFilterStatus(filterStatus === s ? null : s)}
               className={clsx(
-                "px-4 py-2 rounded-xl border text-xs transition-all whitespace-nowrap uppercase tracking-widest",
+                "px-4 py-2 rounded-xl border text-[10px] transition-all whitespace-nowrap uppercase tracking-widest flex-1 md:flex-none",
                 filterStatus === s ? "border-gold text-gold bg-gold/5" : "border-white/5 text-white/40 hover:border-white/20"
               )}
             >
               {s}
             </button>
           ))}
+          <button 
+            onClick={handleExport}
+            className="px-4 py-2 rounded-xl border border-gold/20 text-gold hover:bg-gold/5 transition-all text-[10px] uppercase tracking-widest flex items-center gap-2 flex-1 md:flex-none"
+          >
+            <Download size={14} /> Export
+          </button>
         </div>
       </div>
 
@@ -150,7 +181,7 @@ export const AdminOrdersList = ({ initialOrders }: { initialOrders: Order[] }) =
                       )}
                       <ActionButton icon={<FileText size={16} />} color="text-gold" onClick={() => handleGenerateInvoice(order.id)} title="Invoice" />
                       <button 
-                        onClick={() => setSelectedOrder(order)}
+                        onClick={() => handleViewDetails(order)}
                         className="gold-gradient p-2 rounded-lg text-black hover:scale-110 transition-all shadow-lg shadow-gold/20 ml-2"
                       >
                          <Eye size={16} />
@@ -170,44 +201,97 @@ export const AdminOrdersList = ({ initialOrders }: { initialOrders: Order[] }) =
         </table>
       </div>
 
-      {/* Simple Order Detail Modal */}
+      {/* Enhanced Order Detail Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="glass-card w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col border-gold/20 shadow-2xl shadow-gold/10">
+            <div className="p-8 border-b border-white/10 flex justify-between items-center bg-gold/5">
               <div>
-                <h3 className="text-xl font-bold">Order Details #{selectedOrder.id.slice(0, 8)}</h3>
-                <p className="text-xs text-white/40 uppercase tracking-widest">{selectedOrder.profiles?.full_name} - {selectedOrder.profiles?.store_name}</p>
+                <div className="flex items-center gap-3">
+                   <div className="w-2 h-2 rounded-full gold-gradient animate-pulse" />
+                   <h3 className="text-2xl font-bold tracking-tighter text-white">Order Details #{selectedOrder.id.slice(0, 8)}</h3>
+                </div>
+                <p className="text-xs text-white/40 uppercase tracking-widest mt-1">
+                  {selectedOrder.profiles?.full_name} • {selectedOrder.profiles?.store_name}
+                </p>
               </div>
               <button 
                 onClick={() => setSelectedOrder(null)}
-                className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/40 hover:text-white"
+                className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all text-white/40 hover:text-white border border-white/5"
               >
                 <XCircle size={24} />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto space-y-6">
-              {/* Order content would go here - for now showing basic info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="space-y-1">
-                  <p className="text-white/30 uppercase text-[10px] tracking-widest">Total Amount</p>
-                  <p className="font-bold text-gold text-lg">{Number(selectedOrder.total_price).toLocaleString()} DZD</p>
+            
+            <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-8">
+              {isLoadingItems ? (
+                <div className="py-20 flex flex-col items-center justify-center gap-4">
+                   <div className="w-12 h-12 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
+                   <p className="text-xs uppercase tracking-[0.2em] text-white/20">Loading order items...</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-white/30 uppercase text-[10px] tracking-widest">Paid Amount</p>
-                  <p className="font-bold text-green-400 text-lg">{Number(selectedOrder.paid_amount).toLocaleString()} DZD</p>
+              ) : (
+                <div className="space-y-6">
+                   <table className="w-full text-left">
+                      <thead>
+                         <tr className="text-[10px] uppercase tracking-widest text-white/30 border-b border-white/5">
+                            <th className="pb-4 font-normal">Product</th>
+                            <th className="pb-4 font-normal text-center">Format</th>
+                            <th className="pb-4 font-normal text-center">Qty</th>
+                            <th className="pb-4 font-normal text-right">Unit Price</th>
+                            <th className="pb-4 font-normal text-right">Subtotal</th>
+                         </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                         {selectedOrderItems.map((item, idx) => (
+                            <tr key={idx} className="group">
+                               <td className="py-4">
+                                  <div className="flex items-center gap-3">
+                                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
+                                        <img 
+                                          src={resolveProductImage(item.products?.image_url)} 
+                                          className="w-full h-full object-cover" 
+                                          alt="" 
+                                        />
+                                     </div>
+                                     <span className="font-bold text-white/90 group-hover:text-gold transition-colors">{item.products?.name}</span>
+                                  </div>
+                               </td>
+                               <td className="py-4 text-center text-xs text-white/40 uppercase tracking-widest">{item.quantity_label}</td>
+                               <td className="py-4 text-center text-white/60 font-medium">{item.quantity_count}</td>
+                               <td className="py-4 text-right text-xs text-white/40">{Number(item.price_at_time).toLocaleString()} DZD</td>
+                               <td className="py-4 text-right font-bold text-white">{(item.price_at_time * item.quantity_count).toLocaleString()} DZD</td>
+                            </tr>
+                         ))}
+                      </tbody>
+                   </table>
+
+                   <div className="flex flex-col items-end gap-2 pt-6 border-t-2 border-white/5">
+                      <div className="flex justify-between w-64 text-sm">
+                         <span className="text-white/40 font-medium">Order Total</span>
+                         <span className="text-white font-black">{Number(selectedOrder.total_price).toLocaleString()} DZD</span>
+                      </div>
+                      <div className="flex justify-between w-64 text-sm">
+                         <span className="text-white/40 font-medium">Already Paid</span>
+                         <span className="text-green-400 font-bold">{Number(selectedOrder.paid_amount).toLocaleString()} DZD</span>
+                      </div>
+                      <div className="flex justify-between w-64 mt-2">
+                         <span className="text-[10px] uppercase tracking-widest text-gold font-bold">Remaining Balance</span>
+                         <span className="text-2xl font-black text-gold tracking-tighter">
+                            {(selectedOrder.total_price - selectedOrder.paid_amount).toLocaleString()} DZD
+                         </span>
+                      </div>
+                   </div>
                 </div>
-              </div>
-              <div className="p-4 bg-white/5 rounded-xl border border-white/10 italic text-center text-white/40 text-sm">
-                 Full order item breakdown logic integrated with Supabase.
-              </div>
+              )}
             </div>
-            <div className="p-6 border-t border-white/10 flex justify-end">
+            
+            <div className="p-8 border-t border-white/10 flex justify-between bg-white/5 items-center">
+               <p className="text-[10px] text-white/20 uppercase tracking-widest italic font-light">Digital Fulfillment Audit Log Attached</p>
                <button 
                 onClick={() => setSelectedOrder(null)}
-                className="px-8 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs uppercase tracking-widest transition-all"
+                className="px-10 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold text-white/60 transition-all border border-white/5 hover:text-white"
                >
-                 Close
+                 Close Dashboard
                </button>
             </div>
           </div>

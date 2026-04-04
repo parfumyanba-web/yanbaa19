@@ -11,15 +11,18 @@ interface ProductFormProps {
   initialData?: any
   brands: any[]
   categories: any[]
+  collections: any[]
 }
 
-export default function ProductForm({ initialData, brands, categories }: ProductFormProps) {
+export default function ProductForm({ initialData, brands, categories, collections }: ProductFormProps) {
   const router = useRouter()
+  // ... (keep state)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string>(initialData?.image_url || '')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // ... (keep existing handleSubmit logic)
     e.preventDefault()
     setIsLoading(true)
     setError(null)
@@ -45,7 +48,7 @@ export default function ProductForm({ initialData, brands, categories }: Product
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl pb-20">
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm">
           {error}
@@ -53,7 +56,7 @@ export default function ProductForm({ initialData, brands, categories }: Product
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left Column: Basic Info */}
+        {/* Left Column: Basic Info & Visuals */}
         <div className="space-y-6">
           <div className="glass-card p-6 space-y-4">
             <h3 className="text-lg font-bold">Basic Information</h3>
@@ -75,7 +78,7 @@ export default function ProductForm({ initialData, brands, categories }: Product
                 name="description"
                 defaultValue={initialData?.description}
                 rows={4}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors resize-none text-sm"
                 placeholder="Describe the fragrance notes..."
               />
             </div>
@@ -119,49 +122,72 @@ export default function ProductForm({ initialData, brands, categories }: Product
           </div>
         </div>
 
-        {/* Right Column: Taxonomy */}
+        {/* Right Column: Taxonomy (Brands, Categories, Collections, Tags) */}
         <div className="space-y-6">
-          <div className="glass-card p-6 space-y-4">
-            <h3 className="text-lg font-bold">Organization</h3>
+          <div className="glass-card p-6 space-y-6">
+            <h3 className="text-lg font-bold border-b border-white/5 pb-4">Organization</h3>
             
+            {/* Brands */}
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-white/40">Brand</label>
               <select 
                 name="brand_id" 
                 defaultValue={initialData?.brand_id}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors appearance-none"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors appearance-none text-sm"
               >
                 <option value="">Select Brand</option>
                 {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
 
-            <div className="space-y-2">
+            {/* Categories */}
+            <div className="space-y-3">
               <label className="text-xs uppercase tracking-widest text-white/40">Categories</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
                 {categories.map(c => (
-                  <label key={c.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+                  <label key={c.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
                     <input 
                       type="checkbox" 
                       name="category_ids" 
                       value={c.id} 
                       defaultChecked={initialData?.product_categories?.some((pc: any) => pc.category_id === c.id)}
-                      className="w-4 h-4 rounded border-white/10 bg-white/5 text-gold focus:ring-gold/50"
+                      className="w-4 h-4 rounded border-white/10 bg-white/10 text-gold focus:ring-gold/50"
                     />
-                    <span className="text-sm text-white/60 group-hover:text-white transition-colors">{c.name}</span>
+                    <span className="text-[11px] text-white/60 group-hover:text-white transition-colors truncate">{c.name}</span>
                   </label>
                 ))}
               </div>
             </div>
 
+            {/* Collections (Groups) */}
+            <div className="space-y-3">
+              <label className="text-xs uppercase tracking-widest text-gold font-bold">Groups / Collections (مجموعات)</label>
+              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
+                {collections.map(col => (
+                  <label key={col.id} className="flex items-center gap-2 p-2 rounded-lg bg-gold/5 border border-gold/10 hover:border-gold/30 transition-colors cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      name="collection_ids" 
+                      value={col.id} 
+                      defaultChecked={initialData?.product_collections?.some((pc: any) => pc.collection_id === col.id)}
+                      className="w-4 h-4 rounded border-gold/20 bg-gold/10 text-gold focus:ring-gold/50"
+                    />
+                    <span className="text-[11px] text-gold/70 group-hover:text-gold transition-colors truncate">{col.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Tags */}
             <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-white/40">Tags (Comma separated)</label>
+              <label className="text-xs uppercase tracking-widest text-white/40">Tags</label>
               <input 
                 name="tags"
-                defaultValue={initialData?.product_tags?.map((t: any) => t.tag).join(', ')}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors"
+                defaultValue={initialData?.product_tags?.map((t: any) => t.tags?.name || t.tag).join(', ')}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold/50 transition-colors text-sm"
                 placeholder="luxury, oriental, summer..."
               />
+              <p className="text-[9px] text-white/20 italic">Comma-separated tags for smart filtering</p>
             </div>
           </div>
         </div>
@@ -172,6 +198,7 @@ export default function ProductForm({ initialData, brands, categories }: Product
           variant="ghost" 
           onClick={() => router.back()}
           disabled={isLoading}
+          className="px-8"
         >
           Cancel
         </LuxuryButton>

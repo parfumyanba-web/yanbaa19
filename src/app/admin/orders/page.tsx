@@ -18,9 +18,7 @@ const AdminOrders = async () => {
           <p className="text-white/40 text-sm">Monitor and process B2B partner orders</p>
         </div>
         <div className="flex gap-4">
-           <button className="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-white/50 hover:border-gold transition-all">
-             <Download size={18} /> Export Excel
-           </button>
+           {/* Export handled inside AdminOrdersList for filtered data access */}
         </div>
       </header>
 

@@ -8,6 +8,7 @@ export default async function NewProductPage() {
   const supabase = await createClient()
   const { data: brands } = await supabase.from('brands').select('*')
   const { data: categories } = await supabase.from('categories').select('*')
+  const { data: collections } = await supabase.from('collections').select('*')
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -22,6 +23,7 @@ export default async function NewProductPage() {
       <ProductForm 
         brands={brands || []} 
         categories={categories || []} 
+        collections={collections || []}
       />
     </div>
   )

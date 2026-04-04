@@ -12,6 +12,7 @@ export async function createProduct(formData: FormData) {
   const image_url = formData.get('image_url') as string
   const brand_id = formData.get('brand_id') as string || null
   const categoryIds = formData.getAll('category_ids') as string[]
+  const collectionIds = formData.getAll('collection_ids') as string[]
   const tags = formData.get('tags') ? (formData.get('tags') as string).split(',').map(t => t.trim()) : []
 
   const { data: product, error: productError } = await supabase
@@ -37,30 +38,25 @@ export async function createProduct(formData: FormData) {
     await supabase.from('product_categories').insert(categoryInserts)
   }
 
+  // Insert collections
+  if (collectionIds.length > 0) {
+    const collectionInserts = collectionIds.map(collectionId => ({
+      product_id: product.id,
+      collection_id: collectionId
+    }))
+    await supabase.from('product_collections').insert(collectionInserts)
+  }
+
   // Insert tags (lookup or create)
   if (tags.length > 0) {
     for (const tagName of tags) {
-      // Get or create tag
-      let { data: tag } = await supabase
-        .from('tags')
-        .select('id')
-        .eq('name', tagName)
-        .single()
-      
+      let { data: tag } = await supabase.from('tags').select('id').eq('name', tagName).single()
       if (!tag) {
-        const { data: newTag } = await supabase
-          .from('tags')
-          .insert({ name: tagName })
-          .select('id')
-          .single()
+        const { data: newTag } = await supabase.from('tags').insert({ name: tagName }).select('id').single()
         tag = newTag
       }
-
       if (tag) {
-        await supabase.from('product_tags').insert({
-          product_id: product.id,
-          tag_id: tag.id
-        })
+        await supabase.from('product_tags').insert({ product_id: product.id, tag_id: tag.id })
       }
     }
   }
@@ -72,7 +68,6 @@ export async function createProduct(formData: FormData) {
   })
 
   revalidatePath('/admin/products')
-  revalidatePath('/products')
   revalidatePath('/store')
   revalidatePath('/')
   return { success: true, product }
@@ -86,6 +81,9 @@ export async function updateProduct(id: string, formData: FormData) {
   const price_dzd = parseFloat(formData.get('price_dzd') as string)
   const image_url = formData.get('image_url') as string
   const brand_id = formData.get('brand_id') as string || null
+  const categoryIds = formData.getAll('category_ids') as string[]
+  const collectionIds = formData.getAll('collection_ids') as string[]
+  const tags = formData.get('tags') ? (formData.get('tags') as string).split(',').map(t => t.trim()) : []
 
   const { error } = await supabase
     .from('products')
@@ -100,8 +98,36 @@ export async function updateProduct(id: string, formData: FormData) {
 
   if (error) return { error: error.message }
 
+  // Sync Categories
+  await supabase.from('product_categories').delete().eq('product_id', id)
+  if (categoryIds.length > 0) {
+    const categoryInserts = categoryIds.map(categoryId => ({ product_id: id, category_id: categoryId }))
+    await supabase.from('product_categories').insert(categoryInserts)
+  }
+
+  // Sync Collections
+  await supabase.from('product_collections').delete().eq('product_id', id)
+  if (collectionIds.length > 0) {
+    const collectionInserts = collectionIds.map(collectionId => ({ product_id: id, collection_id: collectionId }))
+    await supabase.from('product_collections').insert(collectionInserts)
+  }
+
+  // Sync Tags
+  await supabase.from('product_tags').delete().eq('product_id', id)
+  if (tags.length > 0) {
+    for (const tagName of tags) {
+      let { data: tag } = await supabase.from('tags').select('id').eq('name', tagName).single()
+      if (!tag) {
+        const { data: newTag } = await supabase.from('tags').insert({ name: tagName }).select('id').single()
+        tag = newTag
+      }
+      if (tag) {
+        await supabase.from('product_tags').insert({ product_id: id, tag_id: tag.id })
+      }
+    }
+  }
+
   revalidatePath('/admin/products')
-  revalidatePath('/products')
   revalidatePath('/store')
   revalidatePath('/')
   return { success: true }

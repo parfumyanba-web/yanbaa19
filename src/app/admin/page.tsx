@@ -101,6 +101,8 @@ const AdminOverview = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => fetchData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchData())
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [])

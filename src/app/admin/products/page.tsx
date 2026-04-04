@@ -8,6 +8,7 @@ import { deleteProduct, getProducts } from '@/actions/products'
 import Link from 'next/link'
 import DeleteProductButton from '@/components/admin/DeleteProductButton'
 import ProductFilterBar from '@/components/admin/ProductFilterBar'
+import { resolveProductImage } from '@/lib/utils/imageUtils'
 
 interface AdminProductsProps {
   searchParams: {
@@ -89,11 +90,11 @@ const AdminProducts = async ({ searchParams }: AdminProductsProps) => {
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-lg bg-neutral-900 border border-white/10 overflow-hidden relative">
-                         {product.image_url ? (
-                           <img src={product.image_url} alt="" className="object-cover w-full h-full" />
-                         ) : (
-                           <div className="w-full h-full flex items-center justify-center text-white/10"><Box size={20} /></div>
-                         )}
+                        <img 
+                          src={resolveProductImage(product.image_url)} 
+                          alt={product.name} 
+                          className="object-cover w-full h-full" 
+                        />
                       </div>
                       <div>
                         <p className="font-bold text-white/90">{product.name}</p>

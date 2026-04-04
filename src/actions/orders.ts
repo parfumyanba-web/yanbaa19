@@ -112,6 +112,20 @@ export async function updateOrderPayment(orderId: string, paidAmount: number) {
   return { success: true }
 }
 
+export async function getOrderItems(orderId: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('order_items')
+    .select('*, products(name, image_url)')
+    .eq('order_id', orderId)
+
+  if (error) {
+    console.error('Error fetching order items:', error)
+    return []
+  }
+  return data
+}
+
 function parseGrams(label: string): number {
   if (label === '100g') return 100
   if (label === '500g') return 500

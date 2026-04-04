@@ -5,6 +5,7 @@ import { Plus, ShoppingBag, Eye } from 'lucide-react'
 import { useCartStore } from '@/store/useCartStore'
 import { Product } from '@/types/catalog'
 import { useLanguage } from '@/context/LanguageContext'
+import { resolveProductImage } from '@/lib/utils/imageUtils'
 
 const ProductCard = ({ 
   product, 
@@ -16,20 +17,7 @@ const ProductCard = ({
   const { t } = useLanguage()
   const addItem = useCartStore((state) => state.addItem)
 
-  // Resolve image URL
-  const resolveImage = (url?: string) => {
-    if (!url || url.trim() === '') return 'https://images.unsplash.com/photo-1541643600914-7836d3969197?auto=format&fit=crop&q=80&w=800' // High quality fallback
-    if (url.startsWith('http')) return url
-    if (url.startsWith('/')) return url
-    
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    if (!supabaseUrl) return url
-    
-    // If it's just a filename, it's in the Supabase 'products' bucket
-    return `${supabaseUrl}/storage/v1/object/public/products/${url}`
-  }
-
-  const imageUrl = resolveImage(product.image_url)
+  const imageUrl = resolveProductImage(product.image_url)
 
   const handleAddToCart = () => {
     addItem({

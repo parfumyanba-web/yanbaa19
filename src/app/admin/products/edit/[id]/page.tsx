@@ -11,7 +11,7 @@ export default async function EditProductPage(props: { params: Promise<{ id: str
   
   const { data: product } = await supabase
     .from('products')
-    .select('*, product_categories(*), product_tags(*)')
+    .select('*, product_categories(*), product_tags(tag_id, tags(name)), product_collections(*)')
     .eq('id', params.id)
     .single()
 
@@ -19,6 +19,7 @@ export default async function EditProductPage(props: { params: Promise<{ id: str
 
   const { data: brands } = await supabase.from('brands').select('*')
   const { data: categories } = await supabase.from('categories').select('*')
+  const { data: collections } = await supabase.from('collections').select('*')
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -34,6 +35,7 @@ export default async function EditProductPage(props: { params: Promise<{ id: str
         initialData={product}
         brands={brands || []} 
         categories={categories || []} 
+        collections={collections || []}
       />
     </div>
   )
